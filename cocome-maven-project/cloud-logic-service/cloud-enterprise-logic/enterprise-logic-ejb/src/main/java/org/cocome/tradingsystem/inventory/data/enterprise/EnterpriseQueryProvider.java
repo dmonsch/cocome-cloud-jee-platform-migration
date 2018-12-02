@@ -19,6 +19,8 @@ import org.cocome.tradingsystem.remote.access.connection.QueryParameterEncoder;
 import org.cocome.tradingsystem.remote.access.parsing.IBackendConversionHelper;
 import org.cocome.tradingsystem.util.exception.NotInDatabaseException;
 
+import dmodel.pipeline.monitoring.util.ManualMapping;
+
 @Stateless
 @Local(IEnterpriseQuery.class)
 public class EnterpriseQueryProvider implements IEnterpriseQuery {
@@ -38,6 +40,7 @@ public class EnterpriseQueryProvider implements IEnterpriseQuery {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@ManualMapping("_rJCGMh_6Edy5k9ER1TBmjg")
 	public ITradingEnterprise queryEnterpriseById(long enterpriseID) throws NotInDatabaseException {
 		LOG.debug("Trying to retrieve enterprise with id " + enterpriseID);
 		try {
@@ -54,6 +57,7 @@ public class EnterpriseQueryProvider implements IEnterpriseQuery {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@ManualMapping("_zKFLgh_6Edy5k9ER1TBmjg")
 	public long getMeanTimeToDelivery(IProductSupplier supplier, ITradingEnterprise enterprise) {
 		long mttd = 0;
 		try {

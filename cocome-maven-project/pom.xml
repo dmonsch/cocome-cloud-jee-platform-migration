@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cocome</groupId>
@@ -68,6 +69,11 @@
 			<id>maven-central</id>
 			<name>official maven central repo</name>
 			<url>http://repo1.maven.org/maven2/</url>
+		</repository>
+		<repository>
+			<id>typesafe</id>
+			<name>Typesafe maven central</name>
+			<url>http://repo.typesafe.com/typesafe/maven-releases/</url>
 		</repository>
 		<repository>
 			<id>maven2-repository.dev.java.net</id>
@@ -249,45 +255,17 @@
 					<artifactId>soapui-maven-plugin</artifactId>
 					<version>${soapui-plugin-version}</version>
 				</plugin>
-				<!-- <plugin>
-					This is needed to suppress error messages from eclipse about missing 
-						lifecycle mappings
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.cxf</groupId>
-										<artifactId>cxf-java2ws-plugin</artifactId>
-										<versionRange>[1.0.0,)</versionRange>
-										<goals>
-											<goal>process-classes</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.cxf</groupId>
-										<artifactId>cxf-codegen-plugin</artifactId>
-										<versionRange>[1.0.0,)</versionRange>
-										<goals>
-											<goal>process-classes</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin> -->
+				<!-- <plugin> This is needed to suppress error messages from eclipse 
+					about missing lifecycle mappings <groupId>org.eclipse.m2e</groupId> <artifactId>lifecycle-mapping</artifactId> 
+					<version>1.0.0</version> <configuration> <lifecycleMappingMetadata> <pluginExecutions> 
+					<pluginExecution> <pluginExecutionFilter> <groupId>org.apache.cxf</groupId> 
+					<artifactId>cxf-java2ws-plugin</artifactId> <versionRange>[1.0.0,)</versionRange> 
+					<goals> <goal>process-classes</goal> </goals> </pluginExecutionFilter> <action> 
+					<ignore /> </action> </pluginExecution> <pluginExecution> <pluginExecutionFilter> 
+					<groupId>org.apache.cxf</groupId> <artifactId>cxf-codegen-plugin</artifactId> 
+					<versionRange>[1.0.0,)</versionRange> <goals> <goal>process-classes</goal> 
+					</goals> </pluginExecutionFilter> <action> <ignore /> </action> </pluginExecution> 
+					</pluginExecutions> </lifecycleMappingMetadata> </configuration> </plugin> -->
 			</plugins>
 		</pluginManagement>
 	</build>

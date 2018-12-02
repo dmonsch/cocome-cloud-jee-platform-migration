@@ -13,10 +13,11 @@
 			<f:viewAction action="#{storeInformation.queryProductsWithStockItems}" />
 		</f:metadata>
 		<ui:define name="body">
-			<h:form>
+			<h:form id="addstock">
 			<h:outputText value="#{strings['stock.add.available_products.text']}"/>
 			<h:dataTable value="#{storeInformation.allProductsWithStockItems}" var="product"
 				styleClass="product-table" headerClass="product-table-header"
+				id="producttable"
 				rowClasses="product-table-odd-row,product-table-even-row"
 				columnClasses="product-table-text-col, product-table-text-col, 
     				product-table-text-col, product-table-number-col">
@@ -37,6 +38,7 @@
 				<h:column>
 					<h:commandLink action="#{showStockView.createNewStockItem(product)}"
 							styleClass="button"
+							id="create"
 							title="#{strings['stock.table.action.edit_price']}"
 							rendered="#{empty product.stockItemTO}">
 							<h:graphicImage

@@ -3,6 +3,8 @@ package org.cocome.tradingsystem.inventory.data.persistence;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
+import dmodel.pipeline.monitoring.util.ManualMapping;
+
 @Stateless
 public class CloudPersistence implements IPersistence {
 
@@ -10,6 +12,7 @@ public class CloudPersistence implements IPersistence {
 	private IPersistenceContext persistenceContext;
 	
 	@Override
+	@ManualMapping("_6ZfDVB8PEdyY_su_CT9KsQ")
 	public IPersistenceContext getPersistenceContext() {
 		return persistenceContext;
 	}
