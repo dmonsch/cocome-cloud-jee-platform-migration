@@ -37,6 +37,8 @@ import javax.inject.Provider;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.cocome.tradingsystem.inventory.application.store.monitoring.ServiceParameters;
+import org.cocome.tradingsystem.inventory.application.store.monitoring.ThreadMonitoringController;
 import org.cocome.tradingsystem.inventory.data.enterprise.IEnterpriseDataFactory;
 import org.cocome.tradingsystem.inventory.data.enterprise.IEnterpriseQuery;
 import org.cocome.tradingsystem.inventory.data.enterprise.IProduct;
@@ -389,6 +391,10 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void __bookSale(long storeID, final SaleTO saleTO) 
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
+		ServiceParameters serviceParameters = new ServiceParameters();
+		ThreadMonitoringController.setSessionId("session-1");
+		ThreadMonitoringController.getInstance().enterService("_XYJcUMjPEeiWRYm1yDC5rQ", serviceParameters);
+		
 		for (final ProductWithStockItemTO pwsto : saleTO.getProductTOs()) {
 			final IStockItem si = __storeQuery.queryStockItemById(pwsto
 					.getStockItemTO().getId());
@@ -416,6 +422,9 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			__warn("Failed UC8! Could not transport low-stock items from other stores: %s",
 					e.getMessage());
 		}
+		
+		// exit
+		ThreadMonitoringController.getInstance().exitService();
 	}
 
 	/**
