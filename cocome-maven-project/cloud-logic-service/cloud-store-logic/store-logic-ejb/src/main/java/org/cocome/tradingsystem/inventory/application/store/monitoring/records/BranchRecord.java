@@ -1,6 +1,8 @@
-package tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.records;
+package org.cocome.tradingsystem.inventory.application.store.monitoring.records;
 
 import java.nio.BufferOverflowException;
+
+import org.cocome.tradingsystem.inventory.application.store.monitoring.records.ServiceContextRecord;
 
 import kieker.common.exception.RecordInstantiationException;
 import kieker.common.record.AbstractMonitoringRecord;
@@ -9,47 +11,46 @@ import kieker.common.record.io.IValueDeserializer;
 import kieker.common.record.io.IValueSerializer;
 import kieker.common.util.registry.IRegistry;
 
-import tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.records.ServiceContextRecord;
-
 /**
  * @author Generic Kieker
  * API compatibility: Kieker 1.13.0
  * 
  * @since 1.13
  */
-public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringRecord.Factory, IMonitoringRecord.BinaryFactory, ServiceContextRecord {			
+public class BranchRecord extends AbstractMonitoringRecord implements IMonitoringRecord.Factory, IMonitoringRecord.BinaryFactory, ServiceContextRecord {			
 	/** Descriptive definition of the serialization size of the record. */
 	public static final int SIZE = TYPE_SIZE_STRING // RecordWithSession.sessionId
 			 + TYPE_SIZE_STRING // ServiceContextRecord.serviceExecutionId
-			 + TYPE_SIZE_STRING // LoopRecord.loopId
-			 + TYPE_SIZE_LONG; // LoopRecord.loopIterationCount
+			 + TYPE_SIZE_STRING // BranchRecord.branchId
+			 + TYPE_SIZE_STRING; // BranchRecord.executedBranchId
 	
 	public static final Class<?>[] TYPES = {
 		String.class, // RecordWithSession.sessionId
 		String.class, // ServiceContextRecord.serviceExecutionId
-		String.class, // LoopRecord.loopId
-		long.class, // LoopRecord.loopIterationCount
+		String.class, // BranchRecord.branchId
+		String.class, // BranchRecord.executedBranchId
 	};
 	
 	/** default constants. */
 	public static final String SESSION_ID = "<not set>";
 	public static final String SERVICE_EXECUTION_ID = "<not set>";
-	public static final String LOOP_ID = "<not set>";
-	private static final long serialVersionUID = -2382675201395801969L;
+	public static final String BRANCH_ID = "<not set>";
+	public static final String EXECUTED_BRANCH_ID = "<not set>";
+	private static final long serialVersionUID = 2435150336822263830L;
 	
 	/** property name array. */
 	private static final String[] PROPERTY_NAMES = {
 		"sessionId",
 		"serviceExecutionId",
-		"loopId",
-		"loopIterationCount",
+		"branchId",
+		"executedBranchId",
 	};
 	
 	/** property declarations. */
 	private final String sessionId;
 	private final String serviceExecutionId;
-	private final String loopId;
-	private final long loopIterationCount;
+	private final String branchId;
+	private final String executedBranchId;
 	
 	/**
 	 * Creates a new instance of this class using the given parameters.
@@ -58,16 +59,16 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 	 *            sessionId
 	 * @param serviceExecutionId
 	 *            serviceExecutionId
-	 * @param loopId
-	 *            loopId
-	 * @param loopIterationCount
-	 *            loopIterationCount
+	 * @param branchId
+	 *            branchId
+	 * @param executedBranchId
+	 *            executedBranchId
 	 */
-	public LoopRecord(final String sessionId, final String serviceExecutionId, final String loopId, final long loopIterationCount) {
+	public BranchRecord(final String sessionId, final String serviceExecutionId, final String branchId, final String executedBranchId) {
 		this.sessionId = sessionId == null?SESSION_ID:sessionId;
 		this.serviceExecutionId = serviceExecutionId == null?SERVICE_EXECUTION_ID:serviceExecutionId;
-		this.loopId = loopId == null?LOOP_ID:loopId;
-		this.loopIterationCount = loopIterationCount;
+		this.branchId = branchId == null?BRANCH_ID:branchId;
+		this.executedBranchId = executedBranchId == null?EXECUTED_BRANCH_ID:executedBranchId;
 	}
 
 	/**
@@ -80,12 +81,12 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 	 * @deprecated to be removed 1.15
 	 */
 	@Deprecated
-	public LoopRecord(final Object[] values) { // NOPMD (direct store of values)
+	public BranchRecord(final Object[] values) { // NOPMD (direct store of values)
 		AbstractMonitoringRecord.checkArray(values, TYPES);
 		this.sessionId = (String) values[0];
 		this.serviceExecutionId = (String) values[1];
-		this.loopId = (String) values[2];
-		this.loopIterationCount = (Long) values[3];
+		this.branchId = (String) values[2];
+		this.executedBranchId = (String) values[3];
 	}
 
 	/**
@@ -99,12 +100,12 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 	 * @deprecated to be removed 1.15
 	 */
 	@Deprecated
-	protected LoopRecord(final Object[] values, final Class<?>[] valueTypes) { // NOPMD (values stored directly)
+	protected BranchRecord(final Object[] values, final Class<?>[] valueTypes) { // NOPMD (values stored directly)
 		AbstractMonitoringRecord.checkArray(values, valueTypes);
 		this.sessionId = (String) values[0];
 		this.serviceExecutionId = (String) values[1];
-		this.loopId = (String) values[2];
-		this.loopIterationCount = (Long) values[3];
+		this.branchId = (String) values[2];
+		this.executedBranchId = (String) values[3];
 	}
 
 	
@@ -114,11 +115,11 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 	 * @throws RecordInstantiationException 
 	 *            when the record could not be deserialized
 	 */
-	public LoopRecord(final IValueDeserializer deserializer) throws RecordInstantiationException {
+	public BranchRecord(final IValueDeserializer deserializer) throws RecordInstantiationException {
 		this.sessionId = deserializer.getString();
 		this.serviceExecutionId = deserializer.getString();
-		this.loopId = deserializer.getString();
-		this.loopIterationCount = deserializer.getLong();
+		this.branchId = deserializer.getString();
+		this.executedBranchId = deserializer.getString();
 	}
 	
 	/**
@@ -132,8 +133,8 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 		return new Object[] {
 			this.getSessionId(),
 			this.getServiceExecutionId(),
-			this.getLoopId(),
-			this.getLoopIterationCount(),
+			this.getBranchId(),
+			this.getExecutedBranchId(),
 		};
 	}
 	/**
@@ -143,7 +144,8 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 	public void registerStrings(final IRegistry<String> stringRegistry) {	// NOPMD (generated code)
 		stringRegistry.get(this.getSessionId());
 		stringRegistry.get(this.getServiceExecutionId());
-		stringRegistry.get(this.getLoopId());
+		stringRegistry.get(this.getBranchId());
+		stringRegistry.get(this.getExecutedBranchId());
 	}
 	
 	/**
@@ -154,8 +156,8 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 		//super.serialize(serializer);
 		serializer.putString(this.getSessionId());
 		serializer.putString(this.getServiceExecutionId());
-		serializer.putString(this.getLoopId());
-		serializer.putLong(this.getLoopIterationCount());
+		serializer.putString(this.getBranchId());
+		serializer.putString(this.getExecutedBranchId());
 	}
 	
 	/**
@@ -208,7 +210,7 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 			return false;
 		}
 		
-		final LoopRecord castedRecord = (LoopRecord) obj;
+		final BranchRecord castedRecord = (BranchRecord) obj;
 		if (this.getLoggingTimestamp() != castedRecord.getLoggingTimestamp()) {
 			return false;
 		}
@@ -218,10 +220,10 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 		if (!this.getServiceExecutionId().equals(castedRecord.getServiceExecutionId())) {
 			return false;
 		}
-		if (!this.getLoopId().equals(castedRecord.getLoopId())) {
+		if (!this.getBranchId().equals(castedRecord.getBranchId())) {
 			return false;
 		}
-		if (this.getLoopIterationCount() != castedRecord.getLoopIterationCount()) {
+		if (!this.getExecutedBranchId().equals(castedRecord.getExecutedBranchId())) {
 			return false;
 		}
 		
@@ -238,13 +240,13 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 	}
 	
 	
-	public final String getLoopId() {
-		return this.loopId;
+	public final String getBranchId() {
+		return this.branchId;
 	}
 	
 	
-	public final long getLoopIterationCount() {
-		return this.loopIterationCount;
+	public final String getExecutedBranchId() {
+		return this.executedBranchId;
 	}
 	
 }
