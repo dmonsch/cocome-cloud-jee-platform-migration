@@ -16,6 +16,8 @@
 
 package org.cocome.tradingsystem.inventory.application.store;
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Collection;
@@ -391,7 +393,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void __bookSale(long storeID, final SaleTO saleTO) 
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
-		__log__.debug("Book a sale.");
+		debugPrint("Book a sale.");
 		for (final ProductWithStockItemTO pwsto : saleTO.getProductTOs()) {
 			final IStockItem si = __storeQuery.queryStockItemById(pwsto
 					.getStockItemTO().getId());
@@ -419,6 +421,15 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			__warn("Failed UC8! Could not transport low-stock items from other stores: %s",
 					e.getMessage());
 		}
+	}
+	
+	private void debugPrint(String msg) {
+		// append = true
+		try(PrintWriter output = new PrintWriter(new FileWriter("/etc/monitoring/debug.txt",true))) 
+		{
+		    output.printf("%s\r\n", msg);
+		} 
+		catch (Exception e) {}
 	}
 
 	/**
