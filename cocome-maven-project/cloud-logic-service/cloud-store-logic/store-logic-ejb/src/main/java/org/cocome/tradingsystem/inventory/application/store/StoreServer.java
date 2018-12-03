@@ -395,6 +395,12 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
 		debugPrint(String.valueOf(ThreadMonitoringController.getInstance()));
 		
+		try {
+			ThreadMonitoringController.getInstance().enterService("test");
+		} catch (Exception e) {
+			debugPrint(e.getClass().getName() + " -> " + e.getMessage());
+		}
+		
 		for (final ProductWithStockItemTO pwsto : saleTO.getProductTOs()) {
 			final IStockItem si = __storeQuery.queryStockItemById(pwsto
 					.getStockItemTO().getId());
