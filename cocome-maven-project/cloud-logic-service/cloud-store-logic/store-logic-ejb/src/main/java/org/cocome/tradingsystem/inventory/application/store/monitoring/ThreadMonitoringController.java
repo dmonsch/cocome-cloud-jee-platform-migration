@@ -1,5 +1,7 @@
 package org.cocome.tradingsystem.inventory.application.store.monitoring;
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -53,6 +55,8 @@ public class ThreadMonitoringController {
     private static final IMonitoringController monitoringController;
     
     static {
+    	debugPrint("Creating configuration.");
+    	
     	final Configuration configuration = ConfigurationFactory.createDefaultConfiguration();
         configuration.setProperty(ConfigurationFactory.METADATA, "true");
         configuration.setProperty(ConfigurationFactory.AUTO_SET_LOGGINGTSTAMP, "true");
@@ -63,7 +67,18 @@ public class ThreadMonitoringController {
         monitoringController = MonitoringController.createInstance(configuration);
         monitoringController.schedulePeriodicSampler(
                 cpuSampler, 0, 1, TimeUnit.SECONDS);
+        
+        debugPrint("Finished creating configuration.");
     }
+    
+    private static void debugPrint(String msg) {
+		// append = true
+		try(PrintWriter output = new PrintWriter(new FileWriter("/etc/monitoring/debug.txt",true))) 
+		{
+		    output.printf("%s\r\n", msg);
+		} 
+		catch (Exception e) {}
+	}
 
     /**
      * Stack and cache of service monitoring controllers. Already initialized controllers are reused.
