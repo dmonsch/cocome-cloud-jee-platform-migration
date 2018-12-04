@@ -60,6 +60,8 @@ import org.cocome.tradingsystem.util.qualifier.StoreRequired;
 import org.cocome.tradingsystem.util.scope.IContextRegistry;
 import org.cocome.tradingsystem.util.scope.RegistryKeys;
 
+import kieker.monitoring.core.controller.MonitoringController;
+
 /**
  * Implements the server part of the store application.
  * 
@@ -393,7 +395,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void __bookSale(long storeID, final SaleTO saleTO) 
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
-		debugPrint(String.valueOf(ThreadMonitoringController.getInstance()));
+		debugPrint(String.valueOf(MonitoringController.getInstance()));
 		
 		for (final ProductWithStockItemTO pwsto : saleTO.getProductTOs()) {
 			final IStockItem si = __storeQuery.queryStockItemById(pwsto
