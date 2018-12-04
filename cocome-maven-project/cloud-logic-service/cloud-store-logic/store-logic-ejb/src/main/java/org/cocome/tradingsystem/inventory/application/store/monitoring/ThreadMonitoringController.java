@@ -36,10 +36,6 @@ public class ThreadMonitoringController {
 
 	private static final String OUTPATH = "/etc/monitoring/";
 
-	private static final ISigarSamplerFactory sigarFactory = SigarSamplerFactory.INSTANCE;
-
-	private static final CPUsDetailedPercSampler cpuSampler = sigarFactory.createSensorCPUsDetailedPerc();
-
 	private static final ThreadLocal<ThreadMonitoringController> CONTROLLER = ThreadLocal
 			.withInitial(new Supplier<ThreadMonitoringController>() {
 				@Override
@@ -63,7 +59,6 @@ public class ThreadMonitoringController {
 		configuration.setProperty(AsciiFileWriter.CONFIG_PATH, OUTPATH);
 
 		monitoringController = MonitoringController.createInstance(configuration);
-		monitoringController.schedulePeriodicSampler(cpuSampler, 0, 1, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -78,6 +73,8 @@ public class ThreadMonitoringController {
 
 	private long overhead;
 
+	private boolean cpuSamplerActive;
+
 	private ThreadMonitoringController(final long threadId, final int initialServiceDepthCount) {
 		this.threadId = threadId;
 		this.serviceControllers = new ArrayList<>(initialServiceDepthCount);
@@ -87,6 +84,17 @@ public class ThreadMonitoringController {
 		this.currentServiceIndex = -1;
 		this.currentServiceController = null;
 		this.overhead = 0;
+		this.cpuSamplerActive = false;
+	}
+
+	public void registerCpuSampler() {
+		if (!cpuSamplerActive) {
+			ISigarSamplerFactory sigarFactory = SigarSamplerFactory.INSTANCE;
+			CPUsDetailedPercSampler cpuSampler = sigarFactory.createSensorCPUsDetailedPerc();
+
+			monitoringController.schedulePeriodicSampler(cpuSampler, 0, 1, TimeUnit.SECONDS);
+			cpuSamplerActive = true;
+		}
 	}
 
 	/**

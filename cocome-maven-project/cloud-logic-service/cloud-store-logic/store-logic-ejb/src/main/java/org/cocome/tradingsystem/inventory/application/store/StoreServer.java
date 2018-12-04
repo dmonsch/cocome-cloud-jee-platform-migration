@@ -403,7 +403,9 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void __bookSale(long storeID, final SaleTO saleTO) 
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
-		ThreadMonitoringController.getInstance().enterService("s0");
+		ThreadMonitoringController.setSessionId("session-0");
+		ServiceParameters serviceParameters = new ServiceParameters();
+		ThreadMonitoringController.getInstance().enterService("s0", serviceParameters);
 		
 		for (final ProductWithStockItemTO pwsto : saleTO.getProductTOs()) {
 			final IStockItem si = __storeQuery.queryStockItemById(pwsto
