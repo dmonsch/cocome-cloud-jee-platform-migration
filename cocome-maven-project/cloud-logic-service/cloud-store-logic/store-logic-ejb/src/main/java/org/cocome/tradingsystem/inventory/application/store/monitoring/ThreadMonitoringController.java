@@ -1,7 +1,5 @@
 package org.cocome.tradingsystem.inventory.application.store.monitoring;
 
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -57,31 +55,15 @@ public class ThreadMonitoringController {
 	private static IMonitoringController monitoringController = null;
 
 	static {
-		debugPrint("Creating configuration.");
+		final Configuration configuration = ConfigurationFactory.createDefaultConfiguration();
+		configuration.setProperty(ConfigurationFactory.METADATA, "true");
+		configuration.setProperty(ConfigurationFactory.AUTO_SET_LOGGINGTSTAMP, "true");
+		configuration.setProperty(ConfigurationFactory.WRITER_CLASSNAME, AsciiFileWriter.class.getName());
+		configuration.setProperty(ConfigurationFactory.TIMER_CLASSNAME, "kieker.monitoring.timer.SystemMilliTimer");
+		configuration.setProperty(AsciiFileWriter.CONFIG_PATH, OUTPATH);
 
-		try {
-			final Configuration configuration = ConfigurationFactory.createDefaultConfiguration();
-			configuration.setProperty(ConfigurationFactory.METADATA, "true");
-			configuration.setProperty(ConfigurationFactory.AUTO_SET_LOGGINGTSTAMP, "true");
-			configuration.setProperty(ConfigurationFactory.WRITER_CLASSNAME, AsciiFileWriter.class.getName());
-			configuration.setProperty(ConfigurationFactory.TIMER_CLASSNAME, "kieker.monitoring.timer.SystemMilliTimer");
-			configuration.setProperty(AsciiFileWriter.CONFIG_PATH, OUTPATH);
-
-			monitoringController = MonitoringController.createInstance(configuration);
-			monitoringController.schedulePeriodicSampler(cpuSampler, 0, 1, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			debugPrint("Error: " + e.getClass().getName() + " -> " + e.getMessage());
-		}
-
-		debugPrint("Finished creating configuration.");
-	}
-
-	private static void debugPrint(String msg) {
-		// append = true
-		try (PrintWriter output = new PrintWriter(new FileWriter("/etc/monitoring/debug.txt", true))) {
-			output.printf("%s\r\n", msg);
-		} catch (Exception e) {
-		}
+		monitoringController = MonitoringController.createInstance(configuration);
+		monitoringController.schedulePeriodicSampler(cpuSampler, 0, 1, TimeUnit.SECONDS);
 	}
 
 	/**
