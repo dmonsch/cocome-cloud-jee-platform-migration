@@ -439,6 +439,9 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		debugPrint("Test pull.");
 
 		try {
+			ISigarSamplerFactory sigarFactory = SigarSamplerFactory.INSTANCE;
+			CPUsDetailedPercSampler cpuSampler = sigarFactory.createSensorCPUsDetailedPerc();
+			
 			final Configuration configuration = ConfigurationFactory.createDefaultConfiguration();
 			configuration.setProperty(ConfigurationFactory.METADATA, "true");
 			configuration.setProperty(ConfigurationFactory.AUTO_SET_LOGGINGTSTAMP, "true");
@@ -447,6 +450,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			configuration.setProperty(AsciiFileWriter.CONFIG_PATH, "/etc/monitoring/");
 
 			IMonitoringController monitoringController = MonitoringController.createInstance(configuration);
+			monitoringController.schedulePeriodicSampler(cpuSampler, 0, 1, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			debugPrint("Error: " + e.getClass().getName() + " -> " + e.getMessage());
 		}
