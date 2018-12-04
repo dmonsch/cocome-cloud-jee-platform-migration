@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -60,7 +61,14 @@ import org.cocome.tradingsystem.util.qualifier.StoreRequired;
 import org.cocome.tradingsystem.util.scope.IContextRegistry;
 import org.cocome.tradingsystem.util.scope.RegistryKeys;
 
+import kieker.common.configuration.Configuration;
+import kieker.monitoring.core.configuration.ConfigurationFactory;
+import kieker.monitoring.core.controller.IMonitoringController;
 import kieker.monitoring.core.controller.MonitoringController;
+import kieker.monitoring.sampler.sigar.ISigarSamplerFactory;
+import kieker.monitoring.sampler.sigar.SigarSamplerFactory;
+import kieker.monitoring.sampler.sigar.samplers.CPUsDetailedPercSampler;
+import kieker.monitoring.writer.filesystem.AsciiFileWriter;
 
 /**
  * Implements the server part of the store application.
@@ -395,7 +403,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void __bookSale(long storeID, final SaleTO saleTO) 
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
-		debugPrint(String.valueOf(MonitoringController.getInstance()));
+		debugCreation();
 		
 		for (final ProductWithStockItemTO pwsto : saleTO.getProductTOs()) {
 			final IStockItem si = __storeQuery.queryStockItemById(pwsto
@@ -424,6 +432,29 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			__warn("Failed UC8! Could not transport low-stock items from other stores: %s",
 					e.getMessage());
 		}
+	}
+	
+	private void debugCreation() {
+		debugPrint("Creating configuration.");
+
+		try {
+			ISigarSamplerFactory sigarFactory = SigarSamplerFactory.INSTANCE;
+			CPUsDetailedPercSampler cpuSampler = sigarFactory.createSensorCPUsDetailedPerc();
+			
+			final Configuration configuration = ConfigurationFactory.createDefaultConfiguration();
+			configuration.setProperty(ConfigurationFactory.METADATA, "true");
+			configuration.setProperty(ConfigurationFactory.AUTO_SET_LOGGINGTSTAMP, "true");
+			configuration.setProperty(ConfigurationFactory.WRITER_CLASSNAME, AsciiFileWriter.class.getName());
+			configuration.setProperty(ConfigurationFactory.TIMER_CLASSNAME, "kieker.monitoring.timer.SystemMilliTimer");
+			configuration.setProperty(AsciiFileWriter.CONFIG_PATH, "/etc/monitoring/");
+
+			IMonitoringController monitoringController = MonitoringController.createInstance(configuration);
+			monitoringController.schedulePeriodicSampler(cpuSampler, 0, 1, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			debugPrint("Error: " + e.getClass().getName() + " -> " + e.getMessage());
+		}
+
+		debugPrint("Finished creating configuration.");
 	}
 	
 	private void debugPrint(String msg) {
