@@ -436,6 +436,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	
 	private void debugCreation() {
 		debugPrint("Creating configuration.");
+		debugPrint("Test pull.");
 
 		try {
 			final Configuration configuration = ConfigurationFactory.createDefaultConfiguration();
