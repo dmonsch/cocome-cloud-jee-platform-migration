@@ -15,6 +15,7 @@ import kieker.common.configuration.Configuration;
 import kieker.monitoring.core.configuration.ConfigurationFactory;
 import kieker.monitoring.core.controller.IMonitoringController;
 import kieker.monitoring.core.controller.MonitoringController;
+import kieker.monitoring.core.sampler.ScheduledSamplerJob;
 import kieker.monitoring.sampler.sigar.ISigarSamplerFactory;
 import kieker.monitoring.sampler.sigar.SigarSamplerFactory;
 import kieker.monitoring.sampler.sigar.samplers.CPUsDetailedPercSampler;
@@ -74,6 +75,7 @@ public class ThreadMonitoringController {
 	private long overhead;
 
 	private boolean cpuSamplerActive;
+	private ScheduledSamplerJob samplerJob;
 
 	private ThreadMonitoringController(final long threadId, final int initialServiceDepthCount) {
 		this.threadId = threadId;
@@ -92,8 +94,15 @@ public class ThreadMonitoringController {
 			ISigarSamplerFactory sigarFactory = SigarSamplerFactory.INSTANCE;
 			CPUsDetailedPercSampler cpuSampler = sigarFactory.createSensorCPUsDetailedPerc();
 
-			monitoringController.schedulePeriodicSampler(cpuSampler, 0, 1, TimeUnit.SECONDS);
+			samplerJob = monitoringController.schedulePeriodicSampler(cpuSampler, 0, 100, TimeUnit.MILLISECONDS);
 			cpuSamplerActive = true;
+		}
+	}
+	
+	public void unregisterCpuSampler() {
+		if (cpuSamplerActive) {
+			monitoringController.removeScheduledSampler(samplerJob);
+			cpuSamplerActive = false;
 		}
 	}
 
