@@ -77,6 +77,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 		} finally {
 			ThreadMonitoringController.getInstance().logResponseTime("_zJrNENLxEduQ7qbNANXHPw",
 					"_oro4gG3fEdy4YaaT-RYrLQ", start);
+			ThreadMonitoringController.getInstance().exitService();
 		}
 	}
 
@@ -96,6 +97,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 		} finally {
 			ThreadMonitoringController.getInstance().logResponseTime("_2GlXMNL-EdujoZKiiOMQBA",
 					"_oro4gG3fEdy4YaaT-RYrLQ", start);
+			ThreadMonitoringController.getInstance().exitService();
 		}
 	}
 
@@ -167,6 +169,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 		// error
 		Collection<IStockItem> stockItems = csvHelper.getStockItems(
 				backendConnection.getStockItems("store.id==" + storeId + ";StockItem.amount=<e.minStock"));
+		ThreadMonitoringController.getInstance().exitService();
 		return stockItems;
 	}
 

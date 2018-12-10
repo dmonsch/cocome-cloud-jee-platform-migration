@@ -15,6 +15,7 @@ import kieker.common.configuration.Configuration;
 import kieker.monitoring.core.configuration.ConfigurationFactory;
 import kieker.monitoring.core.controller.IMonitoringController;
 import kieker.monitoring.core.controller.MonitoringController;
+import kieker.monitoring.core.controller.WriterController;
 import kieker.monitoring.core.sampler.ScheduledSamplerJob;
 import kieker.monitoring.sampler.sigar.ISigarSamplerFactory;
 import kieker.monitoring.sampler.sigar.SigarSamplerFactory;
@@ -56,6 +57,8 @@ public class ThreadMonitoringController {
 		configuration.setProperty(ConfigurationFactory.METADATA, "true");
 		configuration.setProperty(ConfigurationFactory.AUTO_SET_LOGGINGTSTAMP, "true");
 		configuration.setProperty(ConfigurationFactory.WRITER_CLASSNAME, AsciiFileWriter.class.getName());
+		// configuration.setProperty(WriterController.RECORD_QUEUE_SIZE, "5");
+		configuration.setProperty(AsciiFileWriter.CONFIG_FLUSH, "true");
 		configuration.setProperty(ConfigurationFactory.TIMER_CLASSNAME, "kieker.monitoring.timer.SystemMilliTimer");
 		configuration.setProperty(AsciiFileWriter.CONFIG_PATH, OUTPATH);
 
