@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -89,7 +90,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 
 	@EJB
 	private IStoreQuery __storeQuery;
-	
+
 	@EJB
 	private IEnterpriseQuery __enterpriseQuery;
 
@@ -98,39 +99,40 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	//
 
 	/** Contains the identifier of the corresponding store entity. */
-	@Inject @StoreRequired
+	@Inject
+	@StoreRequired
 	IContextRegistry context;
-	
+
 	@Inject
 	IStoreDataFactory storeFactory;
-	
+
 	@Inject
 	IEnterpriseDataFactory enterpriseFactory;
-	
-	/** Remote reference to the product dispatcher. 
-	 * TODO Change to webservice call*/
-//	@EJB
-//	private IProductDispatcherLocal __dispatcher;
 
-	//private long __storeId;
+	/**
+	 * Remote reference to the product dispatcher. TODO Change to webservice call
+	 */
+	// @EJB
+	// private IProductDispatcherLocal __dispatcher;
+
+	// private long __storeId;
 
 	@PostConstruct
 	private void __setUpStore() {
 		long storeIndex = context.getLong(RegistryKeys.STORE_ID);
 		__log__.debug("Setting up store with ID " + storeIndex);
 	}
-	
+
 	//
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public ProductWithStockItemTO changePrice(long storeID, final StockItemTO stockItemTO) 
+	public ProductWithStockItemTO changePrice(long storeID, final StockItemTO stockItemTO)
 			throws NotInDatabaseException, UpdateException {
-		final IStockItem si = __storeQuery.queryStockItemById(
-				stockItemTO.getId());
+		final IStockItem si = __storeQuery.queryStockItemById(stockItemTO.getId());
 
 		si.setSalesPrice(stockItemTO.getSalesPrice());
 		pctx.updateEntity(si);
@@ -143,8 +145,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	 */
 	@Override
 	public List<ProductWithSupplierTO> getAllProducts(long storeID) throws NotInDatabaseException {
-		final Collection<IProduct> products = __storeQuery.queryProducts(
-				storeID);
+		final Collection<IProduct> products = __storeQuery.queryProducts(storeID);
 
 		final List<ProductWithSupplierTO> result = Lists.newArrayList();
 		for (final IProduct product : products) {
@@ -158,12 +159,11 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<ProductWithSupplierAndStockItemTO> getProductsWithStockItems(long storeID) throws NotInDatabaseException {
-		final Collection<IStockItem> stockItems = __storeQuery
-				.queryAllStockItems(storeID);
+	public List<ProductWithSupplierAndStockItemTO> getProductsWithStockItems(long storeID)
+			throws NotInDatabaseException {
+		final Collection<IStockItem> stockItems = __storeQuery.queryAllStockItems(storeID);
 
-		final List<ProductWithSupplierAndStockItemTO> result = Lists
-				.newArrayList();
+		final List<ProductWithSupplierAndStockItemTO> result = Lists.newArrayList();
 		for (final IStockItem stockItem : stockItems) {
 			result.add(storeFactory.fillProductWithSupplierAndStockItemTO(stockItem));
 		}
@@ -176,8 +176,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	 */
 	@Override
 	public ComplexOrderTO getOrder(long storeID, final long orderId) throws NotInDatabaseException {
-		return storeFactory.fillComplexOrderTO(__storeQuery
-				.queryOrderById(orderId));
+		return storeFactory.fillComplexOrderTO(__storeQuery.queryOrderById(orderId));
 	}
 
 	/**
@@ -185,8 +184,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	 */
 	@Override
 	public List<ComplexOrderTO> getOutstandingOrders(long storeID) throws NotInDatabaseException {
-		final Collection<IProductOrder> orders = __storeQuery
-				.queryOutstandingOrders(storeID);
+		final Collection<IProductOrder> orders = __storeQuery.queryOutstandingOrders(storeID);
 
 		final List<ComplexOrderTO> result = Lists.newArrayList();
 		for (final IProductOrder order : orders) {
@@ -201,8 +199,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	 */
 	@Override
 	public List<ProductWithStockItemTO> getProductsWithLowStock(long storeID) {
-		final Collection<IStockItem> stockItems = __storeQuery
-				.queryLowStockItems(storeID);
+		final Collection<IStockItem> stockItems = __storeQuery.queryLowStockItems(storeID);
 
 		final List<ProductWithStockItemTO> result = Lists.newArrayList();
 		for (final IStockItem si : stockItems) {
@@ -217,26 +214,23 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	 */
 	@Override
 	public StoreWithEnterpriseTO getStore(long storeID) throws NotInDatabaseException {
-		return storeFactory.fillStoreWithEnterpriseTO(__storeQuery
-				.queryStoreById(storeID));
+		return storeFactory.fillStoreWithEnterpriseTO(__storeQuery.queryStoreById(storeID));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<ComplexOrderTO> orderProducts(long storeID, final ComplexOrderTO complexOrder) 
+	public List<ComplexOrderTO> orderProducts(long storeID, final ComplexOrderTO complexOrder)
 			throws NotInDatabaseException, CreateException, UpdateException {
 		final IStoreQuery sq = __storeQuery;
 
-		final HashMap<Long, List<IOrderEntry>> ordersBySupplier = Maps
-				.newHashMap();
-		
+		final HashMap<Long, List<IOrderEntry>> ordersBySupplier = Maps.newHashMap();
+
 		final LinkedList<IStockItem> updatedStockItems = new LinkedList<>();
-		
+
 		for (final ComplexOrderEntryTO coeto : complexOrder.getOrderEntryTOs()) {
-			final IProduct product = sq.queryProductByBarcode(coeto.getProductTO()
-					.getBarcode());
+			final IProduct product = sq.queryProductByBarcode(coeto.getProductTO().getBarcode());
 
 			__debug("Found product %d", coeto.getProductTO().getBarcode());
 
@@ -245,7 +239,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			oe.setAmount(coeto.getAmount());
 			oe.setProductBarcode(product.getBarcode());
 
-			// this is probably not necessary to persist because it gets 
+			// this is probably not necessary to persist because it gets
 			// persisted with the ProductOrder later on
 			// pctx.createEntity(oe);
 
@@ -253,20 +247,20 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 
 			IProductSupplier supplier = product.getSupplier();
 			long supplierId = -1;
-			
+
 			// It is possible that there is no supplier entry for a product...
 			// Perhaps throw an exception in this case
 			if (supplier != null) {
 				supplierId = product.getSupplier().getId();
 			}
-			
+
 			List<IOrderEntry> entries = ordersBySupplier.get(supplierId);
 			if (entries == null) {
 				entries = Lists.newArrayList();
 				ordersBySupplier.put(supplierId, entries);
 			}
 			entries.add(oe);
-			
+
 			IStockItem item = sq.queryStockItem(storeID, oe.getProductBarcode());
 			item.setIncomingAmount(item.getIncomingAmount() + oe.getAmount());
 			updatedStockItems.add(item);
@@ -289,7 +283,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 
 			orders.add(po);
 		}
-		
+
 		for (IStockItem item : updatedStockItems) {
 			pctx.updateEntity(item);
 		}
@@ -317,8 +311,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// Ignore the roll in if the order has been already rolled in.
 		//
 		if (order.getDeliveryDate() != null && order.getDeliveryDate().after(order.getOrderingDate())) {
-			final String message = String.format(
-					"Product order %d already rolled in.", order.getId());
+			final String message = String.format("Product order %d already rolled in.", order.getId());
 
 			__warn(message);
 			throw new InvalidRollInRequestException(message);
@@ -328,9 +321,8 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// Ignore the roll in if the order is for different store.
 		//
 		if (order.getStore().getId() != storeID) {
-			final String message = String.format(
-					"Order in store %d cannot be rolled-in by store %d", order
-							.getStore().getId(), storeID);
+			final String message = String.format("Order in store %d cannot be rolled-in by store %d",
+					order.getStore().getId(), storeID);
 
 			__error(message);
 			throw new InvalidRollInRequestException(message);
@@ -340,8 +332,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		order.setDeliveryDate(new Date());
 
 		for (final IOrderEntry oe : order.getOrderEntries()) {
-			final IStockItem si = __storeQuery.queryStockItem(storeID, oe
-					.getProduct().getBarcode());
+			final IStockItem si = __storeQuery.queryStockItem(storeID, oe.getProduct().getBarcode());
 
 			//
 			// Create a new stock item for completely new products.
@@ -354,102 +345,113 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			final long oldAmount = si.getAmount();
 			final long newAmount = oldAmount + oe.getAmount();
 			final long newIncoming = si.getIncomingAmount() - oe.getAmount();
-			
+
 			si.setAmount(newAmount);
 			if (newIncoming >= 0) {
 				si.setIncomingAmount(newIncoming);
 			} else {
 				si.setIncomingAmount(0);
-				__warn("New incoming amount of %s (%d) was negative (%d).", product.getName(), 
-						product.getBarcode(), newIncoming);	
+				__warn("New incoming amount of %s (%d) was negative (%d).", product.getName(), product.getBarcode(),
+						newIncoming);
 			}
-			
+
 			pctx.updateEntity(si);
 
-			__debug("%s (%d) stock increased from %d to %d.",
-					product.getName(), product.getBarcode(), oldAmount,
+			__debug("%s (%d) stock increased from %d to %d.", product.getName(), product.getBarcode(), oldAmount,
 					newAmount);
 		}
 		pctx.updateEntity(order);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ProductWithStockItemTO getProductWithStockItem(long storeID, 
-			final long productBarCode) throws NoSuchProductException {
-		final IStockItem stockItem = __storeQuery.queryStockItem(storeID,
-				productBarCode);
+	public ProductWithStockItemTO getProductWithStockItem(long storeID, final long productBarCode)
+			throws NoSuchProductException {
+		final IStockItem stockItem = __storeQuery.queryStockItem(storeID, productBarCode);
 
 		if (stockItem == null) {
-			throw new NoSuchProductException(
-					"There is no stock item for product with barcode "
-							+ productBarCode);
+			throw new NoSuchProductException("There is no stock item for product with barcode " + productBarCode);
 		}
 
 		return storeFactory.fillProductWithStockItemTO(stockItem);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void accountSale(long storeID, final SaleTO sale) 
+	public void accountSale(long storeID, final SaleTO sale)
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
-		__bookSale(storeID, sale);
+		// monitoring start
+		ServiceParameters serviceParameters = new ServiceParameters();
+		serviceParameters.addInt("products", sale.getProductTOs().size());
+		serviceParameters.addString("storeId", String.valueOf(storeID));
+
+		ThreadMonitoringController.setSessionId("session-0");
+		ThreadMonitoringController.getInstance().registerCpuSampler();
+		ThreadMonitoringController.getInstance().enterService("bookSale", serviceParameters);
+
+		// real call
+		__bookSale(storeID, sale, ThreadMonitoringController.getInstance().getTime());
+
+		// monitoring end
+		ThreadMonitoringController.getInstance().exitService();
+		ThreadMonitoringController.getInstance().unregisterCpuSampler();
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private void __bookSale(long storeID, final SaleTO saleTO) 
+	private void __bookSale(long storeID, final SaleTO saleTO, long startTime)
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
-		ThreadMonitoringController.setSessionId("session-0");
-		ThreadMonitoringController.getInstance().registerCpuSampler();
-		
-		ServiceParameters serviceParameters = new ServiceParameters();
-		serviceParameters.addInt("products", saleTO.getProductTOs().size());
-		serviceParameters.addString("storeId", String.valueOf(storeID));
-		
-		ThreadMonitoringController.getInstance().enterService("s0", serviceParameters);
-		
+		ThreadMonitoringController.getInstance().logResponseTime("_m1YuANJOEduQ7qbNANXHPw", "_oro4gG3fEdy4YaaT-RYrLQ",
+				startTime);
+
+		long iterations = 0;
 		for (final ProductWithStockItemTO pwsto : saleTO.getProductTOs()) {
-			final IStockItem si = __storeQuery.queryStockItemById(pwsto
-					.getStockItemTO().getId());
+			ThreadMonitoringController.getInstance().setCurrentCallerId("_3isY0NJOEduQ7qbNANXHPw");
+			final IStockItem si = __storeQuery.queryStockItemById(pwsto.getStockItemTO().getId());
 
 			long amount = si.getAmount();
-			
+
 			if (amount == 0) {
 				// Normally this should not happen...
-				throw new ProductOutOfStockException(
-								"The requested product is not in stock anymore!");
+				throw new ProductOutOfStockException("The requested product is not in stock anymore!");
 			}
-			
+
 			si.setAmount(si.getAmount() - 1);
 			pctx.updateEntity(si);
+
+			iterations++;
 		}
+		ThreadMonitoringController.getInstance().logLoopIterationCount("_wAfysNJOEduQ7qbNANXHPw", iterations);
 		//
 		// Check for items running low on stock. Required for UC 8.
 		// Alternative (and probably better) design would be to check
 		// once in a while from separate thread, not on every sale.
 		//
-		try {
-			__checkForLowRunningGoods(storeID);
+		long tryStart = ThreadMonitoringController.getInstance().getTime();
+		long innerRun = tryStart;
 
+		try {
+			innerRun = ThreadMonitoringController.getInstance().getTime();
+			__checkForLowRunningGoods(storeID);
+			innerRun = ThreadMonitoringController.getInstance().getTime() - innerRun;
 		} catch (final Exception e) {
-			__warn("Failed UC8! Could not transport low-stock items from other stores: %s",
-					e.getMessage());
+			__warn("Failed UC8! Could not transport low-stock items from other stores: %s", e.getMessage());
+			innerRun = ThreadMonitoringController.getInstance().getTime() - innerRun;
+		} finally {
+			ThreadMonitoringController.getInstance().logResponseTime("_dbRHgNJPEduQ7qbNANXHPw",
+					"_oro4gG3fEdy4YaaT-RYrLQ", innerRun);
 		}
-		
-		ThreadMonitoringController.getInstance().exitService();
-		ThreadMonitoringController.getInstance().unregisterCpuSampler();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ComplexOrderEntryTO[] getStockItems(long storeID, 
-			final ProductTO[] requiredProductTOs) throws NotImplementedException {
+	public ComplexOrderEntryTO[] getStockItems(long storeID, final ProductTO[] requiredProductTOs)
+			throws NotImplementedException {
 		// TODO Auto-generated method stub
 		throw new NotImplementedException("TODO: SDQ implement");
 	}
@@ -459,20 +461,16 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	 */
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void markProductsUnavailableInStock(long storeID, 
-			final ProductMovementTO movedProducts)
+	public void markProductsUnavailableInStock(long storeID, final ProductMovementTO movedProducts)
 			throws ProductOutOfStockException, UpdateException {
-		for (final ProductAmountTO movedProduct : movedProducts
-				.getProductAmounts()) {
+		for (final ProductAmountTO movedProduct : movedProducts.getProductAmounts()) {
 			final ProductTO productTO = movedProduct.getProduct();
 			final long barcode = productTO.getBarcode();
-			final IStockItem stockItem = __storeQuery.queryStockItem(storeID,
-					barcode);
+			final IStockItem stockItem = __storeQuery.queryStockItem(storeID, barcode);
 
 			if (stockItem == null) {
-				throw new ProductOutOfStockException(String.format(
-						"Store %d has no product with barcode %d", storeID,
-						barcode));
+				throw new ProductOutOfStockException(
+						String.format("Store %d has no product with barcode %d", storeID, barcode));
 			}
 
 			//
@@ -482,10 +480,8 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 
 			if (availableAmount < movedAmount) {
 				throw new ProductOutOfStockException(
-						String.format(
-								"Store %d only has %d product(s) with barcode %d, but %d required",
-								storeID, availableAmount, barcode,
-								movedAmount));
+						String.format("Store %d only has %d product(s) with barcode %d, but %d required", storeID,
+								availableAmount, barcode, movedAmount));
 			}
 
 			// set new remaining stock amount
@@ -498,12 +494,9 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			// printed out.
 			//
 			final StoreTO originStore = movedProducts.getOriginStore();
-			final StoreTO destinationStore = movedProducts
-					.getDestinationStore();
-			System.out.printf(
-					"[%s at %s] Ship %s, barcode %d to %s at %s, amount %d\n",
-					originStore.getName(), originStore.getLocation(),
-					productTO.getName(), barcode, destinationStore.getName(),
+			final StoreTO destinationStore = movedProducts.getDestinationStore();
+			System.out.printf("[%s at %s] Ship %s, barcode %d to %s at %s, amount %d\n", originStore.getName(),
+					originStore.getLocation(), productTO.getName(), barcode, destinationStore.getName(),
 					destinationStore.getLocation(), movedAmount);
 		}
 	}
@@ -512,11 +505,11 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	 * Checks for goods that run low. If there are goods running low they
 	 * transported from nearby stores in the enterprise.
 	 * <p>
-	 * Technically, the operation is performed by the product dispatcher. The
-	 * store only needs to provide it with products that are low on stock. If
-	 * there is any problem communicating with the product dispatcher, the
-	 * operation will not be performed. In case of transient errors, the
-	 * operation may succeed during next check for low-stock products.
+	 * Technically, the operation is performed by the product dispatcher. The store
+	 * only needs to provide it with products that are low on stock. If there is any
+	 * problem communicating with the product dispatcher, the operation will not be
+	 * performed. In case of transient errors, the operation may succeed during next
+	 * check for low-stock products.
 	 * <p>
 	 * Required for UC 8
 	 */
@@ -536,8 +529,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// Order required products from stores determined by the
 		// product dispatcher.
 		//
-		final ProductAmountTO[] incomingProducts = __orderRequiredProducts(storeID, 
-				requiredProducts);
+		final ProductAmountTO[] incomingProducts = __orderRequiredProducts(storeID, requiredProducts);
 
 		if (incomingProducts.length < 1) {
 			return;
@@ -554,8 +546,8 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// Query the store inventory for apparently low stock items,
 		// without consider items coming from other stores.
 		//
-		final Collection<IStockItem> lowStockItems = __storeQuery
-				.queryLowStockItems(storeID);
+		ThreadMonitoringController.getInstance().setCurrentCallerId("_YeyxANJQEduQ7qbNANXHPw");
+		final Collection<IStockItem> lowStockItems = __storeQuery.queryLowStockItems(storeID);
 		if (lowStockItems.size() < 1) {
 			return Collections.emptyList();
 		}
@@ -564,6 +556,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// Filter the low-stock items to determine items that are really
 		// low on stock and should be transported from other stores.
 		//
+		// TODO this is not included in the SEFF, maybe adjust the SEFF
 		final Collection<IStockItem> itemsToOrder = __selectItemsToOrder(storeID, lowStockItems);
 		if (itemsToOrder.size() < 1) {
 			return Collections.emptyList();
@@ -573,28 +566,27 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// Finally determine the product amounts that need ot be transported
 		// from nearby stores.
 		//
-		return __calculateRequiredAmounts(storeID, itemsToOrder);
+		long start = ThreadMonitoringController.getInstance().getTime();
+		Collection<ProductAmountTO> ret =__calculateRequiredAmounts(storeID, itemsToOrder);
+		ThreadMonitoringController.getInstance().logResponseTime("_qZcYsNJQEduQ7qbNANXHPw", "_oro4gG3fEdy4YaaT-RYrLQ", start);
+		return ret;
 	}
 
 	/**
 	 * Selects and returns stock items that are really low on stock and will be
 	 * ordered from other stores. Many items can be low on stock, but have more
-	 * stock incoming that along with the current stock satisfies the minimal
-	 * stock condition. Such items are filtered out and only those really low on
-	 * stock are left.
+	 * stock incoming that along with the current stock satisfies the minimal stock
+	 * condition. Such items are filtered out and only those really low on stock are
+	 * left.
 	 */
-	private Collection<IStockItem> __selectItemsToOrder(long storeID,
-			final Collection<IStockItem> stockItems) {
+	private Collection<IStockItem> __selectItemsToOrder(long storeID, final Collection<IStockItem> stockItems) {
 		final Collection<IStockItem> result = new LinkedList<>();
 		SCAN: for (final IStockItem stockItem : stockItems) {
 			final IProduct product = stockItem.getProduct();
-			__debug("\t%s, barcode %d, amount %d, incoming %d, min stock %d",
-					product.getName(), product.getBarcode(),
-					stockItem.getAmount(), stockItem.getIncomingAmount(),
-					stockItem.getMinStock());
+			__debug("\t%s, barcode %d, amount %d, incoming %d, min stock %d", product.getName(), product.getBarcode(),
+					stockItem.getAmount(), stockItem.getIncomingAmount(), stockItem.getMinStock());
 
-			final long virtualAmount = stockItem.getAmount()
-					+ stockItem.getIncomingAmount();
+			final long virtualAmount = stockItem.getAmount() + stockItem.getIncomingAmount();
 			if (virtualAmount >= stockItem.getMinStock()) {
 				__debug("\t\tvirtual stock %d => not low stock", virtualAmount);
 				continue SCAN;
@@ -603,14 +595,12 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			result.add(stockItem);
 		}
 
-		__debug("%d really low-stock items in store %d", result.size(),
-				storeID);
+		__debug("%d really low-stock items in store %d", result.size(), storeID);
 		return result;
 	}
 
 	/**
-	 * Orders by default the minimum stock items for each low running
-	 * product/good.
+	 * Orders by default the minimum stock items for each low running product/good.
 	 * <p>
 	 * Required for UC 8
 	 * 
@@ -636,41 +626,40 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			}
 
 			final ProductAmountTO pa = new ProductAmountTO();
-			pa.setProduct(enterpriseFactory.fillProductTO(stockItem
-					.getProduct()));
+			pa.setProduct(enterpriseFactory.fillProductTO(stockItem.getProduct()));
 			pa.setAmount(orderAmount);
 
 			result.add(pa);
 		}
 
-		__debug("%d products to be ordered by store %d", result.size(),
-				storeID);
+		__debug("%d products to be ordered by store %d", result.size(), storeID);
 		return result;
 	}
 
 	/**
 	 * Requests the product dispatcher to determine the stores to transfer goods
-	 * from and to issue the product movement orders. Returns the amounts of
-	 * items incoming from other stores.
-	 * @throws NotInDatabaseException 
+	 * from and to issue the product movement orders. Returns the amounts of items
+	 * incoming from other stores.
+	 * 
+	 * @throws NotInDatabaseException
 	 * 
 	 * @throws ComponentNotAvailableException
 	 *             if the product dispatcher cannot be found
 	 * @throws RemoteException
 	 *             if there is a problem communicating with the dispatcher
 	 */
-	private ProductAmountTO[] __orderRequiredProducts(
-			long storeID,
-			final Collection<ProductAmountTO> requiredProducts) throws NotInDatabaseException {
+	private ProductAmountTO[] __orderRequiredProducts(long storeID, final Collection<ProductAmountTO> requiredProducts)
+			throws NotInDatabaseException {
 		//
 		// Connect to the product dispatcher and order the required products
 		// from other stores in the enterprise. Do nothing if the connection
 		// cannot be established.
+		ThreadMonitoringController.getInstance().setCurrentCallerId("_1UJywNJQEduQ7qbNANXHPw");
 		final IStore store = __storeQuery.queryStoreById(storeID);
 
-//		final ProductAmountTO[] result = __dispatcher
-//				.dispatchProductsFromOtherStores(store.getId(),
-//						requiredProducts);
+		// final ProductAmountTO[] result = __dispatcher
+		// .dispatchProductsFromOtherStores(store.getId(),
+		// requiredProducts);
 		final ProductAmountTO[] result = new ProductAmountTO[0];
 
 		__debug("%d products incoming to store %d", result.length, storeID);
@@ -678,25 +667,22 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	}
 
 	/**
-	 * Registers the products coming from other stores by increasing the
-	 * incoming amount of stock items corresponding to the incoming products.
-	 * @throws UpdateException 
+	 * Registers the products coming from other stores by increasing the incoming
+	 * amount of stock items corresponding to the incoming products.
+	 * 
+	 * @throws UpdateException
 	 */
-	private void __registerIncomingProducts(
-			long storeID,
-			final ProductAmountTO[] incomingProducts) throws UpdateException {
+	private void __registerIncomingProducts(long storeID, final ProductAmountTO[] incomingProducts)
+			throws UpdateException {
 		for (final ProductAmountTO incomingProductTO : incomingProducts) {
 			final ProductTO incomingProduct = incomingProductTO.getProduct();
-			final IStockItem stockItem = __storeQuery.queryStockItem(storeID,
-					incomingProduct.getBarcode());
+			final IStockItem stockItem = __storeQuery.queryStockItem(storeID, incomingProduct.getBarcode());
 
 			final long incomingAmount = incomingProductTO.getAmount();
-			stockItem.setIncomingAmount(stockItem.getIncomingAmount()
-					+ incomingAmount);
+			stockItem.setIncomingAmount(stockItem.getIncomingAmount() + incomingAmount);
 			pctx.updateEntity(stockItem);
 
-			__debug("\t%s, barcode %d, incoming amount %d",
-					incomingProduct.getName(), incomingProduct.getBarcode(),
+			__debug("\t%s, barcode %d, incoming amount %d", incomingProduct.getName(), incomingProduct.getBarcode(),
 					incomingAmount);
 		}
 	}
@@ -713,25 +699,22 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		__log(Level.ERROR, format, args);
 	}
 
-	private static void __log(final Level level, final String format,
-			final Object... args) {
+	private static void __log(final Level level, final String format, final Object... args) {
 		if (__log__.isEnabledFor(level)) {
 			__log__.log(level, String.format(format, args));
 		}
 	}
 
 	@Override
-	public ProductWithStockItemTO updateStockItem(long storeID,
-			StockItemTO stockItemTO) throws NotInDatabaseException,
-			UpdateException {
-		final IStockItem si = __storeQuery.queryStockItemById(
-				stockItemTO.getId());
+	public ProductWithStockItemTO updateStockItem(long storeID, StockItemTO stockItemTO)
+			throws NotInDatabaseException, UpdateException {
+		final IStockItem si = __storeQuery.queryStockItemById(stockItemTO.getId());
 
 		si.setSalesPrice(stockItemTO.getSalesPrice());
 		si.setAmount(stockItemTO.getAmount());
 		si.setMaxStock(stockItemTO.getMaxStock());
 		si.setMinStock(stockItemTO.getMinStock());
-		
+
 		pctx.updateEntity(si);
 
 		return storeFactory.fillProductWithStockItemTO(si);
@@ -741,27 +724,27 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	public void createStockItem(long storeID, ProductWithStockItemTO stockItemTO)
 			throws NotInDatabaseException, CreateException {
 		IStore store = __storeQuery.queryStoreById(storeID);
-		
+
 		IStockItem item = storeFactory.getNewStockItem();
 		item.setAmount(stockItemTO.getStockItemTO().getAmount());
 		item.setIncomingAmount(stockItemTO.getStockItemTO().getIncomingAmount());
 		item.setMaxStock(stockItemTO.getStockItemTO().getMaxStock());
 		item.setMinStock(stockItemTO.getStockItemTO().getMinStock());
 		item.setSalesPrice(stockItemTO.getStockItemTO().getSalesPrice());
-		
+
 		IProduct product;
 		if (stockItemTO.getId() != 0) {
 			product = __enterpriseQuery.queryProductByID(stockItemTO.getId());
 		} else {
 			product = __enterpriseQuery.queryProductByBarcode(stockItemTO.getBarcode());
 		}
-		
+
 		item.setProduct(product);
 		item.setProductBarcode(product.getBarcode());
 		item.setStore(store);
 		item.setStoreLocation(store.getLocation());
 		item.setStoreName(store.getName());
-		
+
 		pctx.createEntity(item);
 	}
 
