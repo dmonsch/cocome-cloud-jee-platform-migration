@@ -41,6 +41,7 @@ import javax.inject.Provider;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.cocome.tradingsystem.inventory.application.store.monitoring.MonitoringMetadata;
 import org.cocome.tradingsystem.inventory.application.store.monitoring.ServiceParameters;
 import org.cocome.tradingsystem.inventory.application.store.monitoring.ThreadMonitoringController;
 import org.cocome.tradingsystem.inventory.data.enterprise.IEnterpriseDataFactory;
@@ -389,42 +390,50 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		serviceParameters.addInt("products", sale.getProductTOs().size());
 		serviceParameters.addString("storeId", String.valueOf(storeID));
 
-		ThreadMonitoringController.setSessionId("session-0");
-		ThreadMonitoringController.getInstance().registerCpuSampler();
-		ThreadMonitoringController.getInstance().enterService("bookSale", serviceParameters);
+		try {
+			ThreadMonitoringController.setSessionId("session-0");
+			ThreadMonitoringController.getInstance().registerCpuSampler();
+			ThreadMonitoringController.getInstance().enterService("bookSale", serviceParameters);
 
-		// real call
-		__bookSale(storeID, sale, ThreadMonitoringController.getInstance().getTime());
+			// real call
+			__bookSale(storeID, sale, ThreadMonitoringController.getInstance().getTime());
 
-		// monitoring end
-		ThreadMonitoringController.getInstance().exitService();
-		ThreadMonitoringController.getInstance().unregisterCpuSampler();
+		} finally {
+			// monitoring end
+			ThreadMonitoringController.getInstance().exitService();
+			ThreadMonitoringController.getInstance().unregisterCpuSampler();
+		}
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void __bookSale(long storeID, final SaleTO saleTO, long startTime)
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
-		ThreadMonitoringController.getInstance().logResponseTime("_m1YuANJOEduQ7qbNANXHPw", "_oro4gG3fEdy4YaaT-RYrLQ",
-				startTime);
+		ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.PERSISTENCE_SETUP,
+				MonitoringMetadata.RESOURCE_CPU, startTime);
 
 		long iterations = 0;
 		for (final ProductWithStockItemTO pwsto : saleTO.getProductTOs()) {
-			ThreadMonitoringController.getInstance().setCurrentCallerId("_3isY0NJOEduQ7qbNANXHPw");
+			ThreadMonitoringController.getInstance().setCurrentCallerId(MonitoringMetadata.EXTERNAL_QUERYSTOCKITEMBYID);
 			final IStockItem si = __storeQuery.queryStockItemById(pwsto.getStockItemTO().getId());
 
 			long amount = si.getAmount();
 
 			if (amount == 0) {
+				ThreadMonitoringController.getInstance().logLoopIterationCount(MonitoringMetadata.PRODUCT_LOOP,
+						iterations);
 				// Normally this should not happen...
 				throw new ProductOutOfStockException("The requested product is not in stock anymore!");
 			}
 
+			long startUpdate = ThreadMonitoringController.getInstance().getTime();
 			si.setAmount(si.getAmount() - 1);
 			pctx.updateEntity(si);
+			ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.UPDATE_ENTITY,
+					MonitoringMetadata.RESOURCE_CPU, startUpdate);
 
 			iterations++;
 		}
-		ThreadMonitoringController.getInstance().logLoopIterationCount("_wAfysNJOEduQ7qbNANXHPw", iterations);
+		ThreadMonitoringController.getInstance().logLoopIterationCount(MonitoringMetadata.PRODUCT_LOOP, iterations);
 		//
 		// Check for items running low on stock. Required for UC 8.
 		// Alternative (and probably better) design would be to check
@@ -441,8 +450,8 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			__warn("Failed UC8! Could not transport low-stock items from other stores: %s", e.getMessage());
 			innerRun = ThreadMonitoringController.getInstance().getTime() - innerRun;
 		} finally {
-			ThreadMonitoringController.getInstance().logResponseTime("_dbRHgNJPEduQ7qbNANXHPw",
-					"_oro4gG3fEdy4YaaT-RYrLQ", innerRun);
+			ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.TRY_BLOCK,
+					MonitoringMetadata.RESOURCE_CPU, innerRun);
 		}
 	}
 
@@ -546,7 +555,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// Query the store inventory for apparently low stock items,
 		// without consider items coming from other stores.
 		//
-		ThreadMonitoringController.getInstance().setCurrentCallerId("_YeyxANJQEduQ7qbNANXHPw");
+		ThreadMonitoringController.getInstance().setCurrentCallerId(MonitoringMetadata.EXTERNAL_QUERY_LOW_STOCK_ITEMS);
 		final Collection<IStockItem> lowStockItems = __storeQuery.queryLowStockItems(storeID);
 		if (lowStockItems.size() < 1) {
 			return Collections.emptyList();
@@ -567,8 +576,9 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// from nearby stores.
 		//
 		long start = ThreadMonitoringController.getInstance().getTime();
-		Collection<ProductAmountTO> ret =__calculateRequiredAmounts(storeID, itemsToOrder);
-		ThreadMonitoringController.getInstance().logResponseTime("_qZcYsNJQEduQ7qbNANXHPw", "_oro4gG3fEdy4YaaT-RYrLQ", start);
+		Collection<ProductAmountTO> ret = __calculateRequiredAmounts(storeID, itemsToOrder);
+		ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.CALCULATE_AMOUNTS,
+				MonitoringMetadata.RESOURCE_CPU, start);
 		return ret;
 	}
 
@@ -581,7 +591,10 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	 */
 	private Collection<IStockItem> __selectItemsToOrder(long storeID, final Collection<IStockItem> stockItems) {
 		final Collection<IStockItem> result = new LinkedList<>();
+		long its = 0;
 		SCAN: for (final IStockItem stockItem : stockItems) {
+			long startIteration = ThreadMonitoringController.getInstance().getTime();
+			
 			final IProduct product = stockItem.getProduct();
 			__debug("\t%s, barcode %d, amount %d, incoming %d, min stock %d", product.getName(), product.getBarcode(),
 					stockItem.getAmount(), stockItem.getIncomingAmount(), stockItem.getMinStock());
@@ -593,7 +606,11 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			}
 
 			result.add(stockItem);
+			
+			ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.CALC_ORDER, MonitoringMetadata.RESOURCE_CPU, startIteration);
+			its++;
 		}
+		ThreadMonitoringController.getInstance().logLoopIterationCount(MonitoringMetadata.ORDER_LOOP, its);
 
 		__debug("%d really low-stock items in store %d", result.size(), storeID);
 		return result;
@@ -654,9 +671,10 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// Connect to the product dispatcher and order the required products
 		// from other stores in the enterprise. Do nothing if the connection
 		// cannot be established.
-		ThreadMonitoringController.getInstance().setCurrentCallerId("_1UJywNJQEduQ7qbNANXHPw");
+		ThreadMonitoringController.getInstance().setCurrentCallerId(MonitoringMetadata.EXTERNAL_QUERY_STORE_BY_ID);
 		final IStore store = __storeQuery.queryStoreById(storeID);
-
+		
+		// TODO maybe also activate this
 		// final ProductAmountTO[] result = __dispatcher
 		// .dispatchProductsFromOtherStores(store.getId(),
 		// requiredProducts);

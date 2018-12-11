@@ -10,6 +10,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.cocome.tradingsystem.inventory.application.store.monitoring.MonitoringMetadata;
 import org.cocome.tradingsystem.inventory.application.store.monitoring.ServiceParameters;
 import org.cocome.tradingsystem.inventory.application.store.monitoring.ThreadMonitoringController;
 import org.cocome.tradingsystem.inventory.data.enterprise.IProduct;
@@ -67,7 +68,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 
 	@Override
 	public IStore queryStoreById(long storeId) throws NotInDatabaseException {
-		ThreadMonitoringController.getInstance().enterService("queryStoreById");
+		ThreadMonitoringController.getInstance().enterService(MonitoringMetadata.SERVICE_QUERY_STORE_BY_ID);
 		long start = ThreadMonitoringController.getInstance().getTime();
 		try {
 			IStore store = csvHelper.getStores(backendConnection.getStores("id==" + storeId)).iterator().next();
@@ -75,8 +76,8 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 		} catch (NoSuchElementException e) {
 			throw new NotInDatabaseException("Store with ID " + storeId + " could not be found!");
 		} finally {
-			ThreadMonitoringController.getInstance().logResponseTime("_zJrNENLxEduQ7qbNANXHPw",
-					"_oro4gG3fEdy4YaaT-RYrLQ", start);
+			ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.INTERNAL_QUERY_STORE_BY_ID,
+					MonitoringMetadata.RESOURCE_CPU, start);
 			ThreadMonitoringController.getInstance().exitService();
 		}
 	}
@@ -85,7 +86,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	// item id
 	@Override
 	public IStockItem queryStockItemById(long stockItemId) throws NotInDatabaseException {
-		ThreadMonitoringController.getInstance().enterService("queryStockItem");
+		ThreadMonitoringController.getInstance().enterService(MonitoringMetadata.SERVICE_QUERY_STOCK_ITEM_BY_ID);
 
 		long start = ThreadMonitoringController.getInstance().getTime();
 		try {
@@ -95,8 +96,8 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 		} catch (NoSuchElementException e) {
 			throw new NotInDatabaseException("StockItem with ID " + stockItemId + " could not be found!");
 		} finally {
-			ThreadMonitoringController.getInstance().logResponseTime("_2GlXMNL-EdujoZKiiOMQBA",
-					"_oro4gG3fEdy4YaaT-RYrLQ", start);
+			ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.INTERNAL_QUERY_STOCK_ITEM_BY_ID,
+					MonitoringMetadata.RESOURCE_CPU, start);
 			ThreadMonitoringController.getInstance().exitService();
 		}
 	}
@@ -162,19 +163,26 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	@Override
 	public Collection<IStockItem> queryLowStockItems(long storeId) {
 		ServiceParameters paras = new ServiceParameters();
-		ThreadMonitoringController.getInstance().enterService("_ZU7A0h_5Edy5k9ER1TBmjg", paras);
+		ThreadMonitoringController.getInstance().enterService(MonitoringMetadata.SERVICE_QUERY_LOW_STOCK_ITEMS, paras);
+		long startInternal = ThreadMonitoringController.getInstance().getTime();
 		// TODO maybe add this thing to the pcm
 		// Hacky way to get the result. We have to use e.minStock as comparison because
 		// using StockItem.minStock will not be parsed and the query will return an
 		// error
 		Collection<IStockItem> stockItems = csvHelper.getStockItems(
 				backendConnection.getStockItems("store.id==" + storeId + ";StockItem.amount=<e.minStock"));
+
+		ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.INTERNAL_QUERY_LOW_STOCK_ITEMS,
+				MonitoringMetadata.RESOURCE_CPU, startInternal);
 		ThreadMonitoringController.getInstance().exitService();
 		return stockItems;
 	}
 
 	@Override
 	public IStockItem queryStockItem(long storeId, long productBarcode) {
+		ServiceParameters paras = new ServiceParameters();
+		ThreadMonitoringController.getInstance().enterService(MonitoringMetadata.SERVICE_QUERY_STOCK_ITEM, paras);
+		long startInternal = ThreadMonitoringController.getInstance().getTime();
 		IStockItem item = null;
 		try {
 			item = csvHelper
@@ -184,6 +192,9 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 		} catch (NoSuchElementException e) {
 			// Do nothing, just return null and don't crash
 		}
+		ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.SERVICE_QUERY_STOCK_ITEM,
+				MonitoringMetadata.INTERNAL_QUERY_STOCK_ITEM, startInternal);
+		ThreadMonitoringController.getInstance().exitService();
 		return item;
 	}
 
