@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -383,7 +384,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void accountSale(long storeID, final SaleTO sale)
+	public synchronized void accountSale(long storeID, final SaleTO sale)
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
 		// monitoring start
 		ServiceParameters serviceParameters = new ServiceParameters();
@@ -391,7 +392,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		serviceParameters.addString("storeId", String.valueOf(storeID));
 
 		try {
-			ThreadMonitoringController.setSessionId("session-0");
+			ThreadMonitoringController.setSessionId(UUID.randomUUID().toString());
 			ThreadMonitoringController.getInstance().registerCpuSampler();
 			ThreadMonitoringController.getInstance().enterService("bookSale", serviceParameters);
 
