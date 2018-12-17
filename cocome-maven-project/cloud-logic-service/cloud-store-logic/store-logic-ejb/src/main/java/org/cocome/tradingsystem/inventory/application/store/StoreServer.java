@@ -403,6 +403,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			// monitoring end
 			ThreadMonitoringController.getInstance().exitService();
 			ThreadMonitoringController.getInstance().unregisterCpuSampler();
+			ThreadMonitoringController.setSessionId("<not set>");
 		}
 	}
 
