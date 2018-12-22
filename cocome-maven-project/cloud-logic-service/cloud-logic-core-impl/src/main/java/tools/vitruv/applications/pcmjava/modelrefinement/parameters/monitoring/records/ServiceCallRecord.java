@@ -1,8 +1,6 @@
-package org.cocome.tradingsystem.inventory.application.store.monitoring.records;
+package tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.records;
 
 import java.nio.BufferOverflowException;
-
-import org.cocome.tradingsystem.inventory.application.store.monitoring.records.ServiceContextRecord;
 
 import kieker.common.exception.RecordInstantiationException;
 import kieker.common.record.AbstractMonitoringRecord;
@@ -10,6 +8,7 @@ import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.io.IValueDeserializer;
 import kieker.common.record.io.IValueSerializer;
 import kieker.common.util.registry.IRegistry;
+import tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.records.ServiceContextRecord;
 
 /**
  * @author Generic Kieker

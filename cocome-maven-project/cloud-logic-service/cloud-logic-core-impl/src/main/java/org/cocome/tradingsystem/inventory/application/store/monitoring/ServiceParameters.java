@@ -36,6 +36,10 @@ public class ServiceParameters {
         this.stringBuilder.append("\"").append(name).append(".VALUE\":").append(value).append(",");
     }
 
+    public void addNumberOfElements(final String name, final int value) {
+        this.stringBuilder.append("\"").append(name).append(".NUMBER_OF_ELEMENTS\":").append(value).append(",");
+    }
+
     /**
      * Appends an integer parameter.
      *
@@ -46,6 +50,18 @@ public class ServiceParameters {
      */
     public void addInt(final String name, final int value) {
         this.stringBuilder.append("\"").append(name).append(".VALUE\":").append(value).append(",");
+    }
+
+    /**
+     * Appends an integer parameter which describes the size of a list.
+     * 
+     * @param name
+     *            Parameter name.
+     * @param value
+     *            Parameter value.
+     */
+    public void addIntElements(final String name, final int value) {
+        this.stringBuilder.append("\"").append(name).append(".NUMBER_OF_ELEMENTS\":").append(value).append(",");
     }
 
     /**

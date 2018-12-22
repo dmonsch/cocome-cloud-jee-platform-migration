@@ -388,7 +388,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
 		// monitoring start
 		ServiceParameters serviceParameters = new ServiceParameters();
-		serviceParameters.addInt("products", sale.getProductTOs().size());
+		serviceParameters.addNumberOfElements("saleTO", sale.getProductTOs().size());
 		serviceParameters.addString("storeId", String.valueOf(storeID));
 
 		try {

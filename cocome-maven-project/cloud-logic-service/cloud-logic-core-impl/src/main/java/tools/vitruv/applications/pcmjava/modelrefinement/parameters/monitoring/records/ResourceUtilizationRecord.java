@@ -1,8 +1,6 @@
-package org.cocome.tradingsystem.inventory.application.store.monitoring.records;
+package tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.records;
 
 import java.nio.BufferOverflowException;
-
-import org.cocome.tradingsystem.inventory.application.store.monitoring.records.ServiceContextRecord;
 
 import kieker.common.exception.RecordInstantiationException;
 import kieker.common.record.AbstractMonitoringRecord;
@@ -10,6 +8,7 @@ import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.io.IValueDeserializer;
 import kieker.common.record.io.IValueSerializer;
 import kieker.common.util.registry.IRegistry;
+import tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.records.RecordWithSession;
 
 /**
  * @author Generic Kieker
@@ -17,57 +16,56 @@ import kieker.common.util.registry.IRegistry;
  * 
  * @since 1.13
  */
-public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringRecord.Factory, IMonitoringRecord.BinaryFactory, ServiceContextRecord {			
+public class ResourceUtilizationRecord extends AbstractMonitoringRecord implements IMonitoringRecord.Factory, IMonitoringRecord.BinaryFactory, RecordWithSession {			
 	/** Descriptive definition of the serialization size of the record. */
 	public static final int SIZE = TYPE_SIZE_STRING // RecordWithSession.sessionId
-			 + TYPE_SIZE_STRING // ServiceContextRecord.serviceExecutionId
-			 + TYPE_SIZE_STRING // LoopRecord.loopId
-			 + TYPE_SIZE_LONG; // LoopRecord.loopIterationCount
+			 + TYPE_SIZE_STRING // ResourceUtilizationRecord.resourceId
+			 + TYPE_SIZE_DOUBLE // ResourceUtilizationRecord.utilization
+			 + TYPE_SIZE_LONG; // ResourceUtilizationRecord.timestamp
 	
 	public static final Class<?>[] TYPES = {
 		String.class, // RecordWithSession.sessionId
-		String.class, // ServiceContextRecord.serviceExecutionId
-		String.class, // LoopRecord.loopId
-		long.class, // LoopRecord.loopIterationCount
+		String.class, // ResourceUtilizationRecord.resourceId
+		double.class, // ResourceUtilizationRecord.utilization
+		long.class, // ResourceUtilizationRecord.timestamp
 	};
 	
 	/** default constants. */
 	public static final String SESSION_ID = "<not set>";
-	public static final String SERVICE_EXECUTION_ID = "<not set>";
-	public static final String LOOP_ID = "<not set>";
-	private static final long serialVersionUID = -2382675201395801969L;
+	public static final String RESOURCE_ID = "<not set>";
+	private static final long serialVersionUID = 937906745133014588L;
 	
 	/** property name array. */
 	private static final String[] PROPERTY_NAMES = {
 		"sessionId",
-		"serviceExecutionId",
-		"loopId",
-		"loopIterationCount",
+		"resourceId",
+		"utilization",
+		"timestamp",
 	};
 	
 	/** property declarations. */
 	private final String sessionId;
-	private final String serviceExecutionId;
-	private final String loopId;
-	private final long loopIterationCount;
+	private final String resourceId;
+	private final double utilization;
+	private final long timestamp;
 	
 	/**
 	 * Creates a new instance of this class using the given parameters.
 	 * 
 	 * @param sessionId
 	 *            sessionId
-	 * @param serviceExecutionId
-	 *            serviceExecutionId
-	 * @param loopId
-	 *            loopId
-	 * @param loopIterationCount
-	 *            loopIterationCount
+	 * @param resourceId
+	 *            resourceId
+	 * @param utilization
+	 *            utilization
+	 * @param timestamp
+	 *            timestamp
 	 */
-	public LoopRecord(final String sessionId, final String serviceExecutionId, final String loopId, final long loopIterationCount) {
+	public ResourceUtilizationRecord(final String sessionId, final String resourceId, final double utilization, final long timestamp) {
 		this.sessionId = sessionId == null?SESSION_ID:sessionId;
-		this.serviceExecutionId = serviceExecutionId == null?SERVICE_EXECUTION_ID:serviceExecutionId;
-		this.loopId = loopId == null?LOOP_ID:loopId;
-		this.loopIterationCount = loopIterationCount;
+		this.resourceId = resourceId == null?RESOURCE_ID:resourceId;
+		this.utilization = utilization;
+		this.timestamp = timestamp;
 	}
 
 	/**
@@ -80,12 +78,12 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 	 * @deprecated to be removed 1.15
 	 */
 	@Deprecated
-	public LoopRecord(final Object[] values) { // NOPMD (direct store of values)
+	public ResourceUtilizationRecord(final Object[] values) { // NOPMD (direct store of values)
 		AbstractMonitoringRecord.checkArray(values, TYPES);
 		this.sessionId = (String) values[0];
-		this.serviceExecutionId = (String) values[1];
-		this.loopId = (String) values[2];
-		this.loopIterationCount = (Long) values[3];
+		this.resourceId = (String) values[1];
+		this.utilization = (Double) values[2];
+		this.timestamp = (Long) values[3];
 	}
 
 	/**
@@ -99,12 +97,12 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 	 * @deprecated to be removed 1.15
 	 */
 	@Deprecated
-	protected LoopRecord(final Object[] values, final Class<?>[] valueTypes) { // NOPMD (values stored directly)
+	protected ResourceUtilizationRecord(final Object[] values, final Class<?>[] valueTypes) { // NOPMD (values stored directly)
 		AbstractMonitoringRecord.checkArray(values, valueTypes);
 		this.sessionId = (String) values[0];
-		this.serviceExecutionId = (String) values[1];
-		this.loopId = (String) values[2];
-		this.loopIterationCount = (Long) values[3];
+		this.resourceId = (String) values[1];
+		this.utilization = (Double) values[2];
+		this.timestamp = (Long) values[3];
 	}
 
 	
@@ -114,11 +112,11 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 	 * @throws RecordInstantiationException 
 	 *            when the record could not be deserialized
 	 */
-	public LoopRecord(final IValueDeserializer deserializer) throws RecordInstantiationException {
+	public ResourceUtilizationRecord(final IValueDeserializer deserializer) throws RecordInstantiationException {
 		this.sessionId = deserializer.getString();
-		this.serviceExecutionId = deserializer.getString();
-		this.loopId = deserializer.getString();
-		this.loopIterationCount = deserializer.getLong();
+		this.resourceId = deserializer.getString();
+		this.utilization = deserializer.getDouble();
+		this.timestamp = deserializer.getLong();
 	}
 	
 	/**
@@ -131,9 +129,9 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 	public Object[] toArray() {
 		return new Object[] {
 			this.getSessionId(),
-			this.getServiceExecutionId(),
-			this.getLoopId(),
-			this.getLoopIterationCount(),
+			this.getResourceId(),
+			this.getUtilization(),
+			this.getTimestamp(),
 		};
 	}
 	/**
@@ -142,8 +140,7 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 	@Override
 	public void registerStrings(final IRegistry<String> stringRegistry) {	// NOPMD (generated code)
 		stringRegistry.get(this.getSessionId());
-		stringRegistry.get(this.getServiceExecutionId());
-		stringRegistry.get(this.getLoopId());
+		stringRegistry.get(this.getResourceId());
 	}
 	
 	/**
@@ -153,9 +150,9 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 	public void serialize(final IValueSerializer serializer) throws BufferOverflowException {
 		//super.serialize(serializer);
 		serializer.putString(this.getSessionId());
-		serializer.putString(this.getServiceExecutionId());
-		serializer.putString(this.getLoopId());
-		serializer.putLong(this.getLoopIterationCount());
+		serializer.putString(this.getResourceId());
+		serializer.putDouble(this.getUtilization());
+		serializer.putLong(this.getTimestamp());
 	}
 	
 	/**
@@ -208,20 +205,20 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 			return false;
 		}
 		
-		final LoopRecord castedRecord = (LoopRecord) obj;
+		final ResourceUtilizationRecord castedRecord = (ResourceUtilizationRecord) obj;
 		if (this.getLoggingTimestamp() != castedRecord.getLoggingTimestamp()) {
 			return false;
 		}
 		if (!this.getSessionId().equals(castedRecord.getSessionId())) {
 			return false;
 		}
-		if (!this.getServiceExecutionId().equals(castedRecord.getServiceExecutionId())) {
+		if (!this.getResourceId().equals(castedRecord.getResourceId())) {
 			return false;
 		}
-		if (!this.getLoopId().equals(castedRecord.getLoopId())) {
+		if (isNotEqual(this.getUtilization(), castedRecord.getUtilization())) {
 			return false;
 		}
-		if (this.getLoopIterationCount() != castedRecord.getLoopIterationCount()) {
+		if (this.getTimestamp() != castedRecord.getTimestamp()) {
 			return false;
 		}
 		
@@ -233,18 +230,18 @@ public class LoopRecord extends AbstractMonitoringRecord implements IMonitoringR
 	}
 	
 	
-	public final String getServiceExecutionId() {
-		return this.serviceExecutionId;
+	public final String getResourceId() {
+		return this.resourceId;
 	}
 	
 	
-	public final String getLoopId() {
-		return this.loopId;
+	public final double getUtilization() {
+		return this.utilization;
 	}
 	
 	
-	public final long getLoopIterationCount() {
-		return this.loopIterationCount;
+	public final long getTimestamp() {
+		return this.timestamp;
 	}
 	
 }

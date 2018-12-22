@@ -1,4 +1,4 @@
-package org.cocome.tradingsystem.inventory.application.store.monitoring.records;
+package tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.records;
 
 import kieker.common.record.IMonitoringRecord;
 

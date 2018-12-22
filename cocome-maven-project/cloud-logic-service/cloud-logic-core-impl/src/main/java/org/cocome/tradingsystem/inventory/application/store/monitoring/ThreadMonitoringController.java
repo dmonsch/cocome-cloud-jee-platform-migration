@@ -6,11 +6,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import org.cocome.tradingsystem.inventory.application.store.monitoring.records.BranchRecord;
-import org.cocome.tradingsystem.inventory.application.store.monitoring.records.LoopRecord;
-import org.cocome.tradingsystem.inventory.application.store.monitoring.records.ResponseTimeRecord;
-import org.cocome.tradingsystem.inventory.application.store.monitoring.records.ServiceCallRecord;
-
 import kieker.common.configuration.Configuration;
 import kieker.monitoring.core.configuration.ConfigurationFactory;
 import kieker.monitoring.core.controller.IMonitoringController;
@@ -22,6 +17,10 @@ import kieker.monitoring.sampler.sigar.SigarSamplerFactory;
 import kieker.monitoring.sampler.sigar.samplers.CPUsDetailedPercSampler;
 import kieker.monitoring.timer.ITimeSource;
 import kieker.monitoring.writer.filesystem.AsciiFileWriter;
+import tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.records.BranchRecord;
+import tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.records.LoopRecord;
+import tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.records.ResponseTimeRecord;
+import tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.records.ServiceCallRecord;
 
 /**
  * This controller abstracts the creation of monitoring records and the state
