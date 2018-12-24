@@ -56,6 +56,7 @@
 														<td><h:outputText
 																value="#{strings['cashdesk.payment.cash.label']}" /></td>
 														<td><h:inputText value="#{cashAmount}"
+																id="cashamount"
 																validator="#{numberValidator.validatePositiveDouble}" 
 																styleClass="input-number"
 																validatorMessage="#{strings['cashdesk.validation.amount.failed']}"/></td>
@@ -91,6 +92,7 @@
 													<tr>
 														<td><h:commandButton
 																action="#{cashDeskView.enterCardInfo(cardInfo, pin)}"
+																id="entercard"
 																value="#{strings['cashdesk.payment.card.submit.button.label']}" />
 														</td>
 													</tr>
@@ -103,12 +105,13 @@
 								<table align="center">
 									<tr>
 										<td align="center"><b>#{strings['cashdesk.sale.product.barcode.label']}</b>
-											<h:inputText id="barcodetext" style="width:145px"
+											<h:inputText id="barcodetext" style="width:145px" id="barcode"
 												value="#{cashDeskView.barcode}"/></td>
 									</tr>
 									<tr>
 										<td><h:commandButton style="width: 350px"
 												value="#{strings['cashdesk.sale.scan.button.label']}"
+												id="scan"
 												action="#{cashDeskView.scanBarcode}" /></td>
 									</tr>
 									<tr>
@@ -183,6 +186,7 @@
 									<tr>
 										<td><h:dataTable value="#{cashDeskView.printerOutput}"
 												var="printerLine" styleClass="product-table"
+												id="products"
 												rowClasses="product-table-odd-row, product-table-even-row"
 												columnClasses="center-text" width="50%" rendered="#{cashDeskView.saleStarted}">
 												<h:column>
@@ -212,6 +216,7 @@
 									</tr>
 									<tr>
 										<td align="right"><h:commandButton style="width: 150px"
+										id="reset"
 												value="#{strings['cashdesk.sale.start.button.label']}"
 												action="#{cashDeskView.resetSale}" /></td>
 									</tr>
