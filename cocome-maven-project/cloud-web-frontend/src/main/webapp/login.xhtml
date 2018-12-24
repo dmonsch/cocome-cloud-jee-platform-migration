@@ -17,7 +17,7 @@
 				<h:form id="formLogin" prependId="false">
 				<h:messages/>
 				<p>
-					<h:selectOneMenu value="#{login.requestedRole}">
+					<h:selectOneMenu id="role" value="#{login.requestedRole}">
 						<f:selectItem itemValue="#{'ENTERPRISE_MANAGER'}" itemLabel="#{strings['login.enterprise_manager.text']}" />
 						<f:selectItem itemValue="#{'STORE_MANAGER'}" itemLabel="#{strings['login.store_manager.text']}" />
 						<f:selectItem itemValue="#{'STOCK_MANAGER'}" itemLabel="#{strings['login.stock_manager.text']}"/>
@@ -31,15 +31,15 @@
 				</p>
 				<p>
 					<h:outputText value="Store ID: "/>
-					<h:inputText value="#{login.requestedStoreId}" rendered="#{login.storeRequired}"/>
+					<h:inputText id="storeid" value="#{login.requestedStoreId}" rendered="#{login.storeRequired}"/>
 				</p>
 				<p>
 					<h:outputText value="User ID: "/>
-					<input name="name" value="#{login.userName}" />
+					<h:inputText id="username" value="#{login.userName}" />
 				</p>
 				<p>
 					<h:outputText value="Password: "/>
-					<h:inputSecret  value="#{login.password}" />
+					<h:inputSecret id="password"  value="#{login.password}" />
 				</p>
 				<p class="submit">
 					<h:commandButton type="submit" value="Login" action="#{login.login}" />
