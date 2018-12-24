@@ -12,7 +12,7 @@
 
 		<ui:define name="body">
 			<h:panelGroup rendered="#{cashDeskView.cashDeskNameNeeded}">
-				<h:form>
+				<h:form id="startsale">
 					<table align="center">
 						<tr>
 							<td align="center"><b>#{strings['cashdesk.name.enter.text']}</b>
@@ -20,14 +20,14 @@
 									value="#{cashDeskView.cashDeskName}" /></td>
 						</tr>
 						<tr>
-							<td><h:commandButton style="width: 350px"
+							<td><h:commandButton id="submit" style="width: 350px"
 									value="#{strings['cashdesk.submit.button.label']}"
 									action="#{cashDeskView.submitCashDeskName}" /></td>
 						</tr>
 					</table>
 				</h:form>
 			</h:panelGroup>
-			<h:form>
+			<h:form id="scansale">
 				<h:panelGroup
 					rendered="#{not cashDeskView.cashDeskNameNeeded and cashDeskView.saleStarted}">
 					<table width="100%">

@@ -17,12 +17,12 @@
 				requiredMessage="#{strings['enterprise.required.text']}" />
 		</f:metadata>
 		<ui:define name="body">
-			<h:form>
+			<h:form id="createstore">
 				<table>
 					<tr>
 						<td><h:outputText
 								value="#{strings['store.create.name.text']}" /></td>
-						<td colspan="2"><h:inputText value="#{name}" required="true"
+						<td colspan="2"><h:inputText value="#{name}" required="true" id="name"
 											validatorMessage="#{strings['store.create.validation.name.failed']}">
 								<f:validateLength minimum="3" maximum="30"/>
 								<f:validateRegex pattern="[^;]*" />
@@ -31,13 +31,13 @@
 					</tr>
 					<tr>
 						<td><h:outputText value="#{strings['store.create.location.text']}" /></td>
-						<td colspan="2"><h:inputText value="#{location}"
+						<td colspan="2"><h:inputText value="#{location}" id="location"
 								required="true" validatorMessage="#{strings['store.create.validation.location.failed']}">
 								<f:validateLength minimum="3" maximum="30"/>
 								<f:validateRegex pattern="#{strings['input.string.regex']}" />
 							</h:inputText>		
 						</td>
-						<td><h:commandButton
+						<td><h:commandButton id="submit"
 								action="#{storePersistence.createStore(enterpriseInformation.activeEnterpriseID, name, location)}"
 								value="#{strings['store.create.button.label']}" /></td>
 					</tr>
