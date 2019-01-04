@@ -442,18 +442,18 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// once in a while from separate thread, not on every sale.
 		//
 		long tryStart = ThreadMonitoringController.getInstance().getTime();
-		long innerRun = tryStart;
+		long innerDuration = tryStart;
 
 		try {
-			innerRun = ThreadMonitoringController.getInstance().getTime();
 			__checkForLowRunningGoods(storeID);
-			innerRun = ThreadMonitoringController.getInstance().getTime() - innerRun;
+			innerDuration = ThreadMonitoringController.getInstance().getTime() - tryStart;
 		} catch (final Exception e) {
+			innerDuration = ThreadMonitoringController.getInstance().getTime() - tryStart;
 			__warn("Failed UC8! Could not transport low-stock items from other stores: %s", e.getMessage());
-			innerRun = ThreadMonitoringController.getInstance().getTime() - innerRun;
 		} finally {
 			ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.TRY_BLOCK,
-					MonitoringMetadata.RESOURCE_CPU, innerRun);
+					MonitoringMetadata.RESOURCE_CPU,
+					(ThreadMonitoringController.getInstance().getTime() - tryStart) - innerDuration);
 		}
 	}
 
@@ -577,10 +577,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// Finally determine the product amounts that need ot be transported
 		// from nearby stores.
 		//
-		long start = ThreadMonitoringController.getInstance().getTime();
 		Collection<ProductAmountTO> ret = __calculateRequiredAmounts(storeID, itemsToOrder);
-		ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.CALCULATE_AMOUNTS,
-				MonitoringMetadata.RESOURCE_CPU, start);
 		return ret;
 	}
 
@@ -596,7 +593,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		long its = 0;
 		SCAN: for (final IStockItem stockItem : stockItems) {
 			long startIteration = ThreadMonitoringController.getInstance().getTime();
-			
+
 			final IProduct product = stockItem.getProduct();
 			__debug("\t%s, barcode %d, amount %d, incoming %d, min stock %d", product.getName(), product.getBarcode(),
 					stockItem.getAmount(), stockItem.getIncomingAmount(), stockItem.getMinStock());
@@ -608,8 +605,9 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			}
 
 			result.add(stockItem);
-			
-			ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.CALC_ORDER, MonitoringMetadata.RESOURCE_CPU, startIteration);
+
+			ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.CALC_ORDER,
+					MonitoringMetadata.RESOURCE_CPU, startIteration);
 			its++;
 		}
 		ThreadMonitoringController.getInstance().logLoopIterationCount(MonitoringMetadata.ORDER_LOOP, its);
@@ -638,7 +636,9 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// than the minimum (including the incoming amount), so we will never
 		// exceed the maximum level.
 		//
+		long its = 0;
 		for (final IStockItem stockItem : stockItems) {
+			long start = ThreadMonitoringController.getInstance().getTime();
 			long orderAmount = stockItem.getMinStock();
 			if (2 * stockItem.getMinStock() >= stockItem.getMaxStock()) {
 				orderAmount = stockItem.getMaxStock() - stockItem.getMinStock();
@@ -649,7 +649,10 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			pa.setAmount(orderAmount);
 
 			result.add(pa);
+			ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.CALCULATE_AMOUNTS,
+					MonitoringMetadata.RESOURCE_CPU, start);
 		}
+		ThreadMonitoringController.getInstance().logLoopIterationCount(MonitoringMetadata.CALC_PROD_AMOUNT_LOOP, its);
 
 		__debug("%d products to be ordered by store %d", result.size(), storeID);
 		return result;
@@ -675,7 +678,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// cannot be established.
 		ThreadMonitoringController.getInstance().setCurrentCallerId(MonitoringMetadata.EXTERNAL_QUERY_STORE_BY_ID);
 		final IStore store = __storeQuery.queryStoreById(storeID);
-		
+
 		// TODO maybe also activate this
 		// final ProductAmountTO[] result = __dispatcher
 		// .dispatchProductsFromOtherStores(store.getId(),
