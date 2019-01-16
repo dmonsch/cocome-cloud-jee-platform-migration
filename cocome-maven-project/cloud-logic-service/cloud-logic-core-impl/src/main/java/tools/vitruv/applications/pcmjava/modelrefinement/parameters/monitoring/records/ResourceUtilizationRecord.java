@@ -8,6 +8,7 @@ import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.io.IValueDeserializer;
 import kieker.common.record.io.IValueSerializer;
 import kieker.common.util.registry.IRegistry;
+
 import tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.records.RecordWithSession;
 
 /**

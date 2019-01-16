@@ -117,9 +117,9 @@ public class ThreadMonitoringController {
 	 * @param serviceId
 	 *            The SEFF Id for the service.
 	 */
-	public void enterService(final String serviceId) {
+	public void enterService(final String serviceId, final String assemblyId) {
 		long before = System.currentTimeMillis();
-		this.enterService(serviceId, ServiceParameters.EMPTY);
+		this.enterService(serviceId, assemblyId, ServiceParameters.EMPTY);
 		overhead += System.currentTimeMillis() - before;
 	}
 
@@ -134,7 +134,7 @@ public class ThreadMonitoringController {
 	 * @param serviceParameters
 	 *            The service parameter values.
 	 */
-	public void enterService(final String serviceId, final ServiceParameters serviceParameters) {
+	public void enterService(final String serviceId, final String assemblyId, final ServiceParameters serviceParameters) {
 		long before = System.currentTimeMillis();
 		String currentServiceExecutionId = null;
 		String currentCallerId = null;
@@ -151,8 +151,8 @@ public class ThreadMonitoringController {
 		} else {
 			newService = this.serviceControllers.get(this.currentServiceIndex);
 		}
-
-		newService.enterService(serviceId, this.threadId, sessionId, serviceParameters, currentCallerId,
+		
+		newService.enterService(serviceId, assemblyId, this.threadId, sessionId, serviceParameters, currentCallerId,
 				currentServiceExecutionId);
 
 		this.currentServiceController = newService;
@@ -285,8 +285,9 @@ public class ThreadMonitoringController {
 		private String callerServiceExecutionId;
 		private String callerId;
 		private String currentCallerId;
+		private String assemblyId;
 
-		public void enterService(final String serviceId, final long threadId, final String sessionId,
+		public void enterService(final String serviceId, final String assemblyId, final long threadId, final String sessionId,
 				final ServiceParameters serviceParameters, final String callerId,
 				final String callerServiceExecutionId) {
 			this.serviceId = serviceId;
@@ -303,7 +304,7 @@ public class ThreadMonitoringController {
 			final long stopTime = TIME_SOURCE.getTime();
 
 			ServiceCallRecord e = new ServiceCallRecord(this.sessionId, this.serviceExecutionId, this.serviceId,
-					this.serviceParameters.toString(), this.callerServiceExecutionId, this.callerId,
+					this.serviceParameters.toString(), this.callerServiceExecutionId, this.callerId, this.assemblyId,
 					this.serviceStartTime, stopTime);
 
 			monitoringController.newMonitoringRecord(e);

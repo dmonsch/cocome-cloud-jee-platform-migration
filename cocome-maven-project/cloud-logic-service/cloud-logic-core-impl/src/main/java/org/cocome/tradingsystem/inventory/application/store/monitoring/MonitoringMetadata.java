@@ -31,5 +31,9 @@ public class MonitoringMetadata {
 	public static final String EXTERNAL_QUERYSTOCKITEMBYID = "_3isY0NJOEduQ7qbNANXHPw";
 	public static final String EXTERNAL_QUERY_LOW_STOCK_ITEMS = "_YeyxANJQEduQ7qbNANXHPw";
 	public static final String EXTERNAL_QUERY_STORE_BY_ID = "_1UJywNJQEduQ7qbNANXHPw";
+	
+	// ASSEMBLYS
+	public static final String ASSEMBLY_ENTERPRISE = "_LoXbYFfjEd26K8JlmYJ10w";
+	public static final String ASSEMBLY_STORE = "_MX0AwFcyEd23wcZsd06DZg";
 
 }

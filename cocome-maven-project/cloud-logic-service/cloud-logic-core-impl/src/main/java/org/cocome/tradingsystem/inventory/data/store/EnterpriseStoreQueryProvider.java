@@ -68,7 +68,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 
 	@Override
 	public IStore queryStoreById(long storeId) throws NotInDatabaseException {
-		ThreadMonitoringController.getInstance().enterService(MonitoringMetadata.SERVICE_QUERY_STORE_BY_ID);
+		ThreadMonitoringController.getInstance().enterService(MonitoringMetadata.SERVICE_QUERY_STORE_BY_ID, MonitoringMetadata.ASSEMBLY_ENTERPRISE);
 		long start = ThreadMonitoringController.getInstance().getTime();
 		try {
 			IStore store = csvHelper.getStores(backendConnection.getStores("id==" + storeId)).iterator().next();
@@ -86,7 +86,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	// item id
 	@Override
 	public IStockItem queryStockItemById(long stockItemId) throws NotInDatabaseException {
-		ThreadMonitoringController.getInstance().enterService(MonitoringMetadata.SERVICE_QUERY_STOCK_ITEM_BY_ID);
+		ThreadMonitoringController.getInstance().enterService(MonitoringMetadata.SERVICE_QUERY_STOCK_ITEM_BY_ID, MonitoringMetadata.ASSEMBLY_ENTERPRISE);
 
 		long start = ThreadMonitoringController.getInstance().getTime();
 		try {
@@ -163,7 +163,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	@Override
 	public Collection<IStockItem> queryLowStockItems(long storeId) {
 		ServiceParameters paras = new ServiceParameters();
-		ThreadMonitoringController.getInstance().enterService(MonitoringMetadata.SERVICE_QUERY_LOW_STOCK_ITEMS, paras);
+		ThreadMonitoringController.getInstance().enterService(MonitoringMetadata.SERVICE_QUERY_LOW_STOCK_ITEMS, MonitoringMetadata.ASSEMBLY_ENTERPRISE, paras);
 		long startInternal = ThreadMonitoringController.getInstance().getTime();
 		// TODO maybe add this thing to the pcm
 		// Hacky way to get the result. We have to use e.minStock as comparison because
@@ -181,7 +181,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	@Override
 	public IStockItem queryStockItem(long storeId, long productBarcode) {
 		ServiceParameters paras = new ServiceParameters();
-		ThreadMonitoringController.getInstance().enterService(MonitoringMetadata.SERVICE_QUERY_STOCK_ITEM, paras);
+		ThreadMonitoringController.getInstance().enterService(MonitoringMetadata.SERVICE_QUERY_STOCK_ITEM, MonitoringMetadata.ASSEMBLY_ENTERPRISE, paras);
 		long startInternal = ThreadMonitoringController.getInstance().getTime();
 		IStockItem item = null;
 		try {

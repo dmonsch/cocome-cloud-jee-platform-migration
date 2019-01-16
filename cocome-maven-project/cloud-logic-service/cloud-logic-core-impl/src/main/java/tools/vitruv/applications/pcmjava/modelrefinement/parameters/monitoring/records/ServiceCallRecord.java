@@ -8,6 +8,7 @@ import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.io.IValueDeserializer;
 import kieker.common.record.io.IValueSerializer;
 import kieker.common.util.registry.IRegistry;
+
 import tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.records.ServiceContextRecord;
 
 /**
@@ -24,6 +25,7 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 			 + TYPE_SIZE_STRING // ServiceCallRecord.parameters
 			 + TYPE_SIZE_STRING // ServiceCallRecord.callerServiceExecutionId
 			 + TYPE_SIZE_STRING // ServiceCallRecord.callerId
+			 + TYPE_SIZE_STRING // ServiceCallRecord.assemblyId
 			 + TYPE_SIZE_LONG // ServiceCallRecord.entryTime
 			 + TYPE_SIZE_LONG; // ServiceCallRecord.exitTime
 	
@@ -34,6 +36,7 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 		String.class, // ServiceCallRecord.parameters
 		String.class, // ServiceCallRecord.callerServiceExecutionId
 		String.class, // ServiceCallRecord.callerId
+		String.class, // ServiceCallRecord.assemblyId
 		long.class, // ServiceCallRecord.entryTime
 		long.class, // ServiceCallRecord.exitTime
 	};
@@ -45,7 +48,8 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 	public static final String PARAMETERS = "<not set>";
 	public static final String CALLER_SERVICE_EXECUTION_ID = "<not set>";
 	public static final String CALLER_ID = "<not set>";
-	private static final long serialVersionUID = 3264713525460570170L;
+	public static final String ASSEMBLY_ID = "<not set>";
+	private static final long serialVersionUID = -7293080011317886261L;
 	
 	/** property name array. */
 	private static final String[] PROPERTY_NAMES = {
@@ -55,6 +59,7 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 		"parameters",
 		"callerServiceExecutionId",
 		"callerId",
+		"assemblyId",
 		"entryTime",
 		"exitTime",
 	};
@@ -66,6 +71,7 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 	private final String parameters;
 	private final String callerServiceExecutionId;
 	private final String callerId;
+	private final String assemblyId;
 	private final long entryTime;
 	private final long exitTime;
 	
@@ -84,18 +90,21 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 	 *            callerServiceExecutionId
 	 * @param callerId
 	 *            callerId
+	 * @param assemblyId
+	 *            assemblyId
 	 * @param entryTime
 	 *            entryTime
 	 * @param exitTime
 	 *            exitTime
 	 */
-	public ServiceCallRecord(final String sessionId, final String serviceExecutionId, final String serviceId, final String parameters, final String callerServiceExecutionId, final String callerId, final long entryTime, final long exitTime) {
+	public ServiceCallRecord(final String sessionId, final String serviceExecutionId, final String serviceId, final String parameters, final String callerServiceExecutionId, final String callerId, final String assemblyId, final long entryTime, final long exitTime) {
 		this.sessionId = sessionId == null?SESSION_ID:sessionId;
 		this.serviceExecutionId = serviceExecutionId == null?SERVICE_EXECUTION_ID:serviceExecutionId;
 		this.serviceId = serviceId == null?SERVICE_ID:serviceId;
 		this.parameters = parameters == null?PARAMETERS:parameters;
 		this.callerServiceExecutionId = callerServiceExecutionId == null?CALLER_SERVICE_EXECUTION_ID:callerServiceExecutionId;
 		this.callerId = callerId == null?CALLER_ID:callerId;
+		this.assemblyId = assemblyId == null?ASSEMBLY_ID:assemblyId;
 		this.entryTime = entryTime;
 		this.exitTime = exitTime;
 	}
@@ -118,8 +127,9 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 		this.parameters = (String) values[3];
 		this.callerServiceExecutionId = (String) values[4];
 		this.callerId = (String) values[5];
-		this.entryTime = (Long) values[6];
-		this.exitTime = (Long) values[7];
+		this.assemblyId = (String) values[6];
+		this.entryTime = (Long) values[7];
+		this.exitTime = (Long) values[8];
 	}
 
 	/**
@@ -141,8 +151,9 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 		this.parameters = (String) values[3];
 		this.callerServiceExecutionId = (String) values[4];
 		this.callerId = (String) values[5];
-		this.entryTime = (Long) values[6];
-		this.exitTime = (Long) values[7];
+		this.assemblyId = (String) values[6];
+		this.entryTime = (Long) values[7];
+		this.exitTime = (Long) values[8];
 	}
 
 	
@@ -159,6 +170,7 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 		this.parameters = deserializer.getString();
 		this.callerServiceExecutionId = deserializer.getString();
 		this.callerId = deserializer.getString();
+		this.assemblyId = deserializer.getString();
 		this.entryTime = deserializer.getLong();
 		this.exitTime = deserializer.getLong();
 	}
@@ -178,6 +190,7 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 			this.getParameters(),
 			this.getCallerServiceExecutionId(),
 			this.getCallerId(),
+			this.getAssemblyId(),
 			this.getEntryTime(),
 			this.getExitTime(),
 		};
@@ -193,6 +206,7 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 		stringRegistry.get(this.getParameters());
 		stringRegistry.get(this.getCallerServiceExecutionId());
 		stringRegistry.get(this.getCallerId());
+		stringRegistry.get(this.getAssemblyId());
 	}
 	
 	/**
@@ -207,6 +221,7 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 		serializer.putString(this.getParameters());
 		serializer.putString(this.getCallerServiceExecutionId());
 		serializer.putString(this.getCallerId());
+		serializer.putString(this.getAssemblyId());
 		serializer.putLong(this.getEntryTime());
 		serializer.putLong(this.getExitTime());
 	}
@@ -283,6 +298,9 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 		if (!this.getCallerId().equals(castedRecord.getCallerId())) {
 			return false;
 		}
+		if (!this.getAssemblyId().equals(castedRecord.getAssemblyId())) {
+			return false;
+		}
 		if (this.getEntryTime() != castedRecord.getEntryTime()) {
 			return false;
 		}
@@ -320,6 +338,11 @@ public class ServiceCallRecord extends AbstractMonitoringRecord implements IMoni
 	
 	public final String getCallerId() {
 		return this.callerId;
+	}
+	
+	
+	public final String getAssemblyId() {
+		return this.assemblyId;
 	}
 	
 	
