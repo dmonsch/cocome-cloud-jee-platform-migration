@@ -392,7 +392,6 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		serviceParameters.addString("storeId", String.valueOf(storeID));
 
 		try {
-			ThreadMonitoringController.setSessionId(UUID.randomUUID().toString());
 			ThreadMonitoringController.getInstance().registerCpuSampler();
 			ThreadMonitoringController.getInstance().enterService("bookSale", MonitoringMetadata.ASSEMBLY_STORE, serviceParameters);
 
@@ -402,7 +401,6 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		} finally {
 			// monitoring end
 			ThreadMonitoringController.getInstance().exitService();
-			ThreadMonitoringController.getInstance().unregisterCpuSampler();
 			ThreadMonitoringController.setSessionId("<not set>");
 		}
 	}
