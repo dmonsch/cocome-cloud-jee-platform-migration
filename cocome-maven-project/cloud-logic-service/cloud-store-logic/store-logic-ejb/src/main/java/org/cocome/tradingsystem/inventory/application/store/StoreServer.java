@@ -390,9 +390,13 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		ServiceParameters serviceParameters = new ServiceParameters();
 		serviceParameters.addNumberOfElements("saleTO", sale.getProductTOs().size());
 		serviceParameters.addString("storeId", String.valueOf(storeID));
-
+		
+		// session id
+		String sessionId = String.valueOf(sale.getDate().getTime());
+		
 		try {
-			ThreadMonitoringController.getInstance().registerCpuSampler();
+			ThreadMonitoringController.setSessionId(sessionId);
+			ThreadMonitoringController.getInstance().registerCpuSampler(MonitoringMetadata.CONTAINER_STORE_ID, sessionId);
 			ThreadMonitoringController.getInstance().enterService("bookSale", MonitoringMetadata.ASSEMBLY_STORE, serviceParameters);
 
 			// real call

@@ -76,6 +76,11 @@
 			<version>1.13</version>
 		</dependency>
 		<dependency>
+			<groupId>org.hyperic</groupId>
+			<artifactId>sigar</artifactId>
+			<version>1.6.4</version>
+		</dependency>
+		<dependency>
 			<groupId>org.cocome</groupId>
 			<artifactId>cloud-logic-core-api</artifactId>
 			<version>1.1</version>

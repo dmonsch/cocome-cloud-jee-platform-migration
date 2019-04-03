@@ -91,12 +91,11 @@ public class ThreadMonitoringController {
 		this.cpuSamplerActive = false;
 	}
 
-	public void registerCpuSampler() {
+	public void registerCpuSampler(String containerId, String sessionId) {
 		if (!cpuSamplerActive) {
-			ISigarSamplerFactory sigarFactory = SigarSamplerFactory.INSTANCE;
-			CPUsDetailedPercSampler cpuSampler = sigarFactory.createSensorCPUsDetailedPerc();
+			CPUSamplingJob job = new CPUSamplingJob(containerId, sessionId);
 
-			samplerJob = monitoringController.schedulePeriodicSampler(cpuSampler, 0, 100, TimeUnit.MILLISECONDS);
+			samplerJob = monitoringController.schedulePeriodicSampler(job, 0, 100, TimeUnit.MILLISECONDS);
 			cpuSamplerActive = true;
 		}
 	}
@@ -298,6 +297,7 @@ public class ThreadMonitoringController {
 			this.serviceStartTime = TIME_SOURCE.getTime();
 			this.serviceExecutionId = UUID.randomUUID().toString();
 			this.currentCallerId = null;
+			this.assemblyId = assemblyId;
 		}
 
 		public void exitService() {
