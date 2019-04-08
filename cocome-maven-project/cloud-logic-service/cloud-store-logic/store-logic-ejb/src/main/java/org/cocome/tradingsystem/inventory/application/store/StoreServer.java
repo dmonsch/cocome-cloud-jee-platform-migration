@@ -455,7 +455,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		} finally {
 			ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.TRY_BLOCK,
 					MonitoringMetadata.RESOURCE_CPU,
-					(ThreadMonitoringController.getInstance().getTime() - tryStart) - innerDuration);
+					tryStart + innerDuration);
 		}
 	}
 
