@@ -37,6 +37,6 @@ public class MonitoringMetadata {
 	public static final String ASSEMBLY_STORE = "_MX0AwFcyEd23wcZsd06DZg";
 	
 	// RESOURCE CONTAINER
-	public static final String CONTAINER_STORE_ID = "_0LG41h84Edy8vbmreGRsqg";
+	public static final String CONTAINER_STORE_ID = "_ZVdrwOEhEduBSuO8WivxSA";
 
 }

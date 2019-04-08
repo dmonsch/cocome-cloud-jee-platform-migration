@@ -193,7 +193,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 			// Do nothing, just return null and don't crash
 		}
 		ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.SERVICE_QUERY_STOCK_ITEM,
-				MonitoringMetadata.INTERNAL_QUERY_STOCK_ITEM, startInternal);
+				MonitoringMetadata.RESOURCE_CPU, startInternal);
 		ThreadMonitoringController.getInstance().exitService();
 		return item;
 	}
