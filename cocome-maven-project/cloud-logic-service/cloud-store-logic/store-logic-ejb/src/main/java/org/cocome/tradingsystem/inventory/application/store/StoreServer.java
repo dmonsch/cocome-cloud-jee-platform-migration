@@ -396,7 +396,6 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		
 		try {
 			ThreadMonitoringController.setSessionId(sessionId);
-			ThreadMonitoringController.getInstance().registerCpuSampler(MonitoringMetadata.CONTAINER_STORE_ID, sessionId);
 			ThreadMonitoringController.getInstance().enterService("bookSale", MonitoringMetadata.ASSEMBLY_STORE, serviceParameters);
 
 			// real call
