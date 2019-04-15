@@ -68,6 +68,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 
 	@Override
 	public IStore queryStoreById(long storeId) throws NotInDatabaseException {
+		ThreadMonitoringController.getInstance().registerCpuSampler(MonitoringMetadata.CONTAINER_STORE_ID, "<none>");
 		ThreadMonitoringController.getInstance().enterService(MonitoringMetadata.SERVICE_QUERY_STORE_BY_ID, MonitoringMetadata.ASSEMBLY_ENTERPRISE);
 		long start = ThreadMonitoringController.getInstance().getTime();
 		try {

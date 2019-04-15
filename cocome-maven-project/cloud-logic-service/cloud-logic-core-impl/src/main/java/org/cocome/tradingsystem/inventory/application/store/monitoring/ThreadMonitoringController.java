@@ -62,8 +62,6 @@ public class ThreadMonitoringController {
 		configuration.setProperty(AsciiFileWriter.CONFIG_PATH, OUTPATH);
 
 		monitoringController = MonitoringController.createInstance(configuration);
-		
-		ThreadMonitoringController.getInstance().registerCpuSampler(MonitoringMetadata.CONTAINER_STORE_ID, "<none>");
 	}
 
 	/**
