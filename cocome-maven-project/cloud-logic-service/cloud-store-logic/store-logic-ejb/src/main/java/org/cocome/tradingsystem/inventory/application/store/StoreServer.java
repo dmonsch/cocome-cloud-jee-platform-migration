@@ -16,7 +16,9 @@
 
 package org.cocome.tradingsystem.inventory.application.store;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -390,13 +392,13 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		} finally {
 			// monitoring end
 			long overhead = ThreadMonitoringController.getInstance().exitService();
-
-			try {
-				Files.write(Paths.get("/etc/monitoring/overhead.txt"), (";" + String.valueOf(overhead)).getBytes(),
-						StandardOpenOption.APPEND);
-			} catch (IOException e) {
-				// exception handling left as an exercise for the reader
-			}
+			
+			// append = true
+			try(PrintWriter output = new PrintWriter(new FileWriter("/etc/monitoring/overhead.txt",true))) 
+			{
+			    output.printf("%s\r\n", ";" + String.valueOf(overhead));
+			} 
+			catch (Exception e) {}
 
 			// write overhead to file?
 			ThreadMonitoringController.setSessionId("<not set>");
