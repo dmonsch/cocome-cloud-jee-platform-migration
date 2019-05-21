@@ -31,7 +31,7 @@ import tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.r
  *
  */
 public class ThreadMonitoringController {
-	private static final boolean FINE_GRANULAR = true;
+	private static final boolean FINE_GRANULAR = false;
 
 	private static final int INITIAL_SERVICE_DEPTH_COUNT = 10;
 
