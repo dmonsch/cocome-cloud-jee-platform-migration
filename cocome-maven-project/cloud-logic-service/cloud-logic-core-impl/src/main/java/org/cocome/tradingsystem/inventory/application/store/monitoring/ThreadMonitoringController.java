@@ -31,7 +31,7 @@ import tools.vitruv.applications.pcmjava.modelrefinement.parameters.monitoring.r
  *
  */
 public class ThreadMonitoringController {
-	private static final boolean FINE_GRANULAR = false;
+	private static boolean FINE_GRANULAR = false;
 
 	private static final int INITIAL_SERVICE_DEPTH_COUNT = 10;
 
@@ -98,7 +98,7 @@ public class ThreadMonitoringController {
 	}
 
 	public void registerCpuSampler(String containerId, String sessionId) {
-		if (!cpuSamplerActive) {
+		if (!cpuSamplerActive && FINE_GRANULAR) {
 			CPUSamplingJob job = new CPUSamplingJob(containerId, sessionId);
 
 			samplerJob = monitoringController.schedulePeriodicSampler(job, 0, 100, TimeUnit.MILLISECONDS);
