@@ -16,30 +16,25 @@
 
 package org.cocome.tradingsystem.inventory.application.store;
 
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.ejb.CreateException;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.inject.Provider;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.cocome.tradingsystem.inventory.application.store.monitoring.MonitoringMetadata;
@@ -64,15 +59,6 @@ import org.cocome.tradingsystem.util.qualifier.StoreRequired;
 import org.cocome.tradingsystem.util.scope.IContextRegistry;
 import org.cocome.tradingsystem.util.scope.RegistryKeys;
 
-import kieker.common.configuration.Configuration;
-import kieker.monitoring.core.configuration.ConfigurationFactory;
-import kieker.monitoring.core.controller.IMonitoringController;
-import kieker.monitoring.core.controller.MonitoringController;
-import kieker.monitoring.sampler.sigar.ISigarSamplerFactory;
-import kieker.monitoring.sampler.sigar.SigarSamplerFactory;
-import kieker.monitoring.sampler.sigar.samplers.CPUsDetailedPercSampler;
-import kieker.monitoring.writer.filesystem.AsciiFileWriter;
-
 /**
  * Implements the server part of the store application.
  * 
@@ -83,7 +69,6 @@ import kieker.monitoring.writer.filesystem.AsciiFileWriter;
  */
 @Stateless
 public class StoreServer implements Serializable, IStoreInventoryManagerLocal, IStoreInventoryLocal {
-
 	private static final long serialVersionUID = -529765757261183369L;
 
 	private static final Logger __log__ = Logger.getLogger(StoreServer.class);
@@ -390,20 +375,30 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		ServiceParameters serviceParameters = new ServiceParameters();
 		serviceParameters.addNumberOfElements("saleTO", sale.getProductTOs().size());
 		serviceParameters.addString("storeId", String.valueOf(storeID));
-		
+
 		// session id
 		String sessionId = String.valueOf(sale.getDate().getTime());
-		
+
 		try {
 			ThreadMonitoringController.setSessionId(sessionId);
-			ThreadMonitoringController.getInstance().enterService("bookSale", MonitoringMetadata.ASSEMBLY_STORE, serviceParameters);
+			ThreadMonitoringController.getInstance().enterService("bookSale", MonitoringMetadata.ASSEMBLY_STORE,
+					serviceParameters);
 
 			// real call
 			__bookSale(storeID, sale, ThreadMonitoringController.getInstance().getTime());
 
 		} finally {
 			// monitoring end
-			ThreadMonitoringController.getInstance().exitService();
+			long overhead = ThreadMonitoringController.getInstance().exitService();
+
+			try {
+				Files.write(Paths.get("/etc/monitoring/overhead.txt"), (";" + String.valueOf(overhead)).getBytes(),
+						StandardOpenOption.APPEND);
+			} catch (IOException e) {
+				// exception handling left as an exercise for the reader
+			}
+
+			// write overhead to file?
 			ThreadMonitoringController.setSessionId("<not set>");
 		}
 	}
@@ -453,8 +448,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			__warn("Failed UC8! Could not transport low-stock items from other stores: %s", e.getMessage());
 		} finally {
 			ThreadMonitoringController.getInstance().logResponseTime(MonitoringMetadata.TRY_BLOCK,
-					MonitoringMetadata.RESOURCE_CPU,
-					tryStart + innerDuration);
+					MonitoringMetadata.RESOURCE_CPU, tryStart + innerDuration);
 		}
 	}
 
