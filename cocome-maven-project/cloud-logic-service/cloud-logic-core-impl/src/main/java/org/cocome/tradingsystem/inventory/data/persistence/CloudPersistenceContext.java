@@ -21,6 +21,8 @@ import org.cocome.tradingsystem.inventory.data.usermanager.IUser;
 import org.cocome.tradingsystem.remote.access.connection.CSVBackendConnection;
 import org.cocome.tradingsystem.remote.access.connection.IPersistenceConnection;
 
+import dmodel.designtime.monitoring.util.ManualMapping;
+
 @Stateless
 @Local(IPersistenceContext.class)
 public class CloudPersistenceContext implements IPersistenceContext {
@@ -33,6 +35,13 @@ public class CloudPersistenceContext implements IPersistenceContext {
 	
 	@Inject
 	IPersistenceConnection postData;
+	
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	@ManualMapping("_6ZfDVB8PEdyY_su_CT9KsQ")
+	public void getPersistenceContext() {
+		// this is just to synchronize the implementation with the existing PCM model
+	}
 	
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)

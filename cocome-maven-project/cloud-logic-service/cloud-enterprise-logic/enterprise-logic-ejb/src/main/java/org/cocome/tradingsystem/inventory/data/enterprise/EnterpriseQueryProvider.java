@@ -1,7 +1,5 @@
 package org.cocome.tradingsystem.inventory.data.enterprise;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -12,12 +10,14 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.cocome.tradingsystem.inventory.data.store.IStoreQuery;
 import org.cocome.tradingsystem.inventory.data.store.IStore;
+import org.cocome.tradingsystem.inventory.data.store.IStoreQuery;
 import org.cocome.tradingsystem.remote.access.connection.IBackendQuery;
 import org.cocome.tradingsystem.remote.access.connection.QueryParameterEncoder;
 import org.cocome.tradingsystem.remote.access.parsing.IBackendConversionHelper;
 import org.cocome.tradingsystem.util.exception.NotInDatabaseException;
+
+import dmodel.designtime.monitoring.util.ManualMapping;
 
 @Stateless
 @Local(IEnterpriseQuery.class)
@@ -38,6 +38,7 @@ public class EnterpriseQueryProvider implements IEnterpriseQuery {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@ManualMapping("_rJCGMh_6Edy5k9ER1TBmjg")
 	public ITradingEnterprise queryEnterpriseById(long enterpriseID) throws NotInDatabaseException {
 		LOG.debug("Trying to retrieve enterprise with id " + enterpriseID);
 		try {
@@ -54,6 +55,7 @@ public class EnterpriseQueryProvider implements IEnterpriseQuery {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@ManualMapping("_zKFLgh_6Edy5k9ER1TBmjg")
 	public long getMeanTimeToDelivery(IProductSupplier supplier, ITradingEnterprise enterprise) {
 		long mttd = 0;
 		try {

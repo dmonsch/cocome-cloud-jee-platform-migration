@@ -27,6 +27,8 @@ import org.cocome.tradingsystem.inventory.data.store.IStore;
 import org.cocome.tradingsystem.inventory.data.store.IStoreDataFactory;
 import org.cocome.tradingsystem.util.exception.NotInDatabaseException;
 
+import dmodel.designtime.monitoring.util.ManualMapping;
+
 @Stateless
 @Local(IEnterpriseQuery.class)
 public class StoreEnterpriseQueryProvider implements IEnterpriseQuery {
@@ -78,6 +80,7 @@ public class StoreEnterpriseQueryProvider implements IEnterpriseQuery {
 	}
 
 	@Override
+	@ManualMapping("_rJCGMh_6Edy5k9ER1TBmjg")
 	public ITradingEnterprise queryEnterpriseById(long enterpriseID) throws NotInDatabaseException {
 		IEnterpriseManager enterpriseManager = lookupEnterpriseManager(enterpriseID);
 
@@ -130,6 +133,7 @@ public class StoreEnterpriseQueryProvider implements IEnterpriseQuery {
 	}
 
 	@Override
+	@ManualMapping("_zKFLgh_6Edy5k9ER1TBmjg")
 	public long getMeanTimeToDelivery(IProductSupplier supplier, ITradingEnterprise enterprise) {
 		IEnterpriseManager enterpriseManager;
 		try {

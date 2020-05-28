@@ -16,6 +16,12 @@ import org.cocome.tradingsystem.remote.access.connection.QueryParameterEncoder;
 import org.cocome.tradingsystem.remote.access.parsing.IBackendConversionHelper;
 import org.cocome.tradingsystem.util.exception.NotInDatabaseException;
 
+import dmodel.designtime.monitoring.controller.MonitoringMetadata;
+import dmodel.designtime.monitoring.controller.ServiceParameters;
+import dmodel.designtime.monitoring.controller.ThreadMonitoringController;
+import dmodel.designtime.monitoring.meta.CocomeMonitoringMetadata;
+import dmodel.designtime.monitoring.util.ManualMapping;
+
 
 /**
  * The objects returned will only have their basic datatype attributes filled.
@@ -65,19 +71,31 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	}
 
 	@Override
+	@ManualMapping("queryStoreById")
 	public IStore queryStoreById(long storeId) throws NotInDatabaseException {
+		ThreadMonitoringController.getInstance().enterService(CocomeMonitoringMetadata.SERVICE_QUERY_STORE_BY_ID, this);
+		long start = ThreadMonitoringController.getInstance().getTime();
+		ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_STORE_BY_ID,
+				MonitoringMetadata.RESOURCE_CPU);
 		try {
+			// @START INTERNAL_ACTION{_zJrNENLxEduQ7qbNANXHPw}
 			IStore store = csvHelper.getStores(
-					backendConnection.getStores("id==" + storeId)).iterator().next();			
+					backendConnection.getStores("id==" + storeId)).iterator().next();		
+			// @END INTERNAL_ACTION{_zJrNENLxEduQ7qbNANXHPw}
 			return store;
 		} catch (NoSuchElementException e) {
 			throw new NotInDatabaseException(
 					"Store with ID " + storeId + " could not be found!");
+		}  finally {
+			ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_STORE_BY_ID,
+					MonitoringMetadata.RESOURCE_CPU);
+			ThreadMonitoringController.getInstance().exitService(CocomeMonitoringMetadata.SERVICE_QUERY_STORE_BY_ID);
 		}
 	}
 
 	// TODO don't call this method, because there is no way to retrieve the stock item id
 	@Override
+	@ManualMapping("queryStockItemById")
 	public IStockItem queryStockItemById(long stockItemId) throws NotInDatabaseException {
 		try {
 			IStockItem item = csvHelper.getStockItems(
@@ -90,6 +108,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	}
 
 	@Override
+	@ManualMapping("_D4QOch_6Edy5k9ER1TBmjg")
 	public IProduct queryProductById(long productId) throws NotInDatabaseException {
 		IProduct product = null;
 		try {
@@ -115,6 +134,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	}
 
 	@Override
+	@ManualMapping("_x6oLQh_5Edy5k9ER1TBmjg")
 	public IProductOrder queryOrderById(long orderId) throws NotInDatabaseException {
 		IProductOrder productOrder;
 		try {
@@ -127,6 +147,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	}
 
 	@Override
+	@ManualMapping("_GqStsh_5Edy5k9ER1TBmjg")
 	public Collection<IProduct> queryProducts(long storeId) {
 		Collection<IProduct> products = new LinkedList<IProduct>();
 		for (IStockItem item : queryAllStockItems(storeId)) {
@@ -144,6 +165,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	}
 
 	@Override
+	@ManualMapping("_obZ3wh_5Edy5k9ER1TBmjg")
 	public Collection<IStockItem> queryAllStockItems(long storeId) {
 		Collection<IStockItem> stockItems = csvHelper.getStockItems(
 				backendConnection.getStockItems("store.id==" + storeId));
@@ -151,16 +173,33 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	}
 
 	@Override
+	@ManualMapping("_ZU7A0h_5Edy5k9ER1TBmjg")
 	public Collection<IStockItem> queryLowStockItems(long storeId) {
+		ServiceParameters paras = new ServiceParameters();
+		ThreadMonitoringController.getInstance().enterService(CocomeMonitoringMetadata.SERVICE_QUERY_LOW_STOCK_ITEMS, this, paras);
+		ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_LOW_STOCK_ITEMS,
+				MonitoringMetadata.RESOURCE_CPU);
 		// Hacky way to get the result. We have to use e.minStock as comparison because
 		// using StockItem.minStock will not be parsed and the query will return an error
 		Collection<IStockItem> stockItems = csvHelper.getStockItems(
 				backendConnection.getStockItems("store.id==" + storeId + ";StockItem.amount=<e.minStock"));
+		
+		ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_LOW_STOCK_ITEMS,
+				MonitoringMetadata.RESOURCE_CPU);
+		ThreadMonitoringController.getInstance().exitService(CocomeMonitoringMetadata.SERVICE_QUERY_LOW_STOCK_ITEMS);
+		
 		return stockItems;
 	}
 
 	@Override
+	@ManualMapping("queryStockItem")
 	public IStockItem queryStockItem(long storeId, long productBarcode) {
+		ServiceParameters paras = new ServiceParameters();
+		ThreadMonitoringController.getInstance().enterService(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM, this, paras);
+		// @START INTERNAL_ACTION{_2GlXMNL-EdujoZKiiOMQBA}
+		
+		ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM,
+				MonitoringMetadata.RESOURCE_CPU);
 		IStockItem item = null;
 		try {
 			item = csvHelper.getStockItems(
@@ -169,6 +208,12 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 		} catch (NoSuchElementException e) {
 			// Do nothing, just return null and don't crash
 		}
+		// @END INTERNAL_ACTION{_2GlXMNL-EdujoZKiiOMQBA}
+		
+		ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM,
+				MonitoringMetadata.RESOURCE_CPU);
+		ThreadMonitoringController.getInstance().exitService(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM);
+		
 		return item;
 	}
 

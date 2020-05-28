@@ -29,6 +29,8 @@ import org.cocome.cloud.web.events.LoginEvent;
 import org.cocome.cloud.web.frontend.navigation.NavigationElements;
 import org.cocome.cloud.web.frontend.navigation.NavigationViewStates;
 
+import dmodel.designtime.monitoring.util.ManualMapping;
+
 /**
  * Holds information about the currently active store.
  * 
@@ -133,6 +135,7 @@ public class StoreInformation implements IStoreInformation, Serializable {
 	}
 
 	@Override
+	@ManualMapping("_ifiR9yCfEdyrYp4aNf6BNw")
 	public List<ProductWrapper> getStockReport(long storeID) {
 		long currentStoreID = getActiveStoreID();
 		setActiveStoreID(storeID);

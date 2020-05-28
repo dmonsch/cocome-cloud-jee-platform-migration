@@ -207,4 +207,6 @@ public interface IPersistenceContext {
 	 */
 	public <T> void updateEntity(T entity) throws UpdateException;
 
+	void getPersistenceContext();
+
 }

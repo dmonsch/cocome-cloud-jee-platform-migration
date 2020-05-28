@@ -34,6 +34,7 @@ import org.cocome.tradingsystem.remote.access.connection.QueryParameterEncoder;
 import de.kit.ipd.java.utils.framework.table.Row;
 import de.kit.ipd.java.utils.parsing.csv.CSVParser;
 import de.kit.ipd.java.utils.time.TimeUtils;
+import dmodel.designtime.monitoring.util.ManualMapping;
 
 
 
@@ -440,6 +441,7 @@ public class CSVHelper implements IBackendConversionHelper {
 	 * @see org.cocome.tradingsystem.remote.access.parsing.IBackendConversionHelper#getProducts(java.lang.String)
 	 */
 	@Override
+	@ManualMapping("_KX_5Eh_6Edy5k9ER1TBmjg")
 	public Collection<IProduct> getProducts(String input) {
 		CSVParser parser = new CSVParser();
 		parser.parse(input);
