@@ -11,12 +11,12 @@
 	<ui:composition template="/templates/commonTemplate.xhtml">
 
 		<ui:define name="body">
-			<h:form>
+			<h:form id="createprod">
 				<table>
 					<tr>
 						<td><h:outputText
 								value="#{strings['product.create.name.text']}" /></td>
-						<td colspan="2"><h:inputText value="#{name}" required="true"
+						<td colspan="2"><h:inputText value="#{name}" required="true" id="name"
 											validatorMessage="#{strings['product.create.validation.name.failed']}">
 								<f:validateLength minimum="3" maximum="30"/>
 								<f:validateRegex pattern="#{strings['input.string.regex']}" />
@@ -27,7 +27,7 @@
 						<td><h:outputText
 								value="#{strings['product.create.barcode.text']}" /></td>
 						<td colspan="2">
-							<h:inputText value="#{barcode}" required="true"
+							<h:inputText id="barcode" value="#{barcode}" required="true"
 								converterMessage="#{strings['product.create.validation.barcode.failed']}">
 								<f:converter converterId="javax.faces.Long"/>
 							</h:inputText>
@@ -37,12 +37,12 @@
 						<td><h:outputText
 								value="#{strings['product.create.purchase_price.text']}" /></td>
 						<td>
-							<h:inputText value="#{purchasePrice}" required="true"
+							<h:inputText id="price" value="#{purchasePrice}" required="true"
 								converterMessage="#{strings['product.create.validation.price.failed']}">
 								<f:converter converterId="javax.faces.Double"/>
 							</h:inputText>
 						</td>
-						<td><h:commandButton
+						<td><h:commandButton id="submit"
 					action="#{enterprisePersistence.createProduct(name, barcode, purchasePrice)}"
 					value="#{strings['product.create.button.label']}" /></td>
 					</tr>
