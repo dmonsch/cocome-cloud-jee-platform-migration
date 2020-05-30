@@ -397,7 +397,6 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	@ManualMapping("bookSale")
 	public void accountSale(long storeID, final SaleTO sale)
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
-
 		// monitoring start
 		ServiceParameters serviceParameters = new ServiceParameters();
 		serviceParameters.addValue("saleTO.NUMBER_OF_ELEMENTS", sale.getProductTOs().size());

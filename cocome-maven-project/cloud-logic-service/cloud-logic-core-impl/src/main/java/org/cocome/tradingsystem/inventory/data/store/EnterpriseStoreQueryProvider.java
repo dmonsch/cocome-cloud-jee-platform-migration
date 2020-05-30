@@ -198,7 +198,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 		ThreadMonitoringController.getInstance().enterService(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM, this, paras);
 		// @START INTERNAL_ACTION{_2GlXMNL-EdujoZKiiOMQBA}
 		
-		ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM,
+		ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_STOCK_ITEM,
 				MonitoringMetadata.RESOURCE_CPU);
 		IStockItem item = null;
 		try {
@@ -210,7 +210,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 		}
 		// @END INTERNAL_ACTION{_2GlXMNL-EdujoZKiiOMQBA}
 		
-		ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM,
+		ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_STOCK_ITEM,
 				MonitoringMetadata.RESOURCE_CPU);
 		ThreadMonitoringController.getInstance().exitService(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM);
 		
