@@ -97,6 +97,10 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	@Override
 	@ManualMapping("queryStockItemById")
 	public IStockItem queryStockItemById(long stockItemId) throws NotInDatabaseException {
+		ThreadMonitoringController.getInstance().enterService(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM_BY_ID, this);
+		ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_STOCK_ITEM_BY_ID,
+				MonitoringMetadata.RESOURCE_CPU);
+		
 		try {
 			IStockItem item = csvHelper.getStockItems(
 					backendConnection.getStockItems("id==" + stockItemId)).iterator().next();
@@ -104,6 +108,10 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 		} catch  (NoSuchElementException e) {
 			throw new NotInDatabaseException("StockItem with ID " 
 					+ stockItemId + " could not be found!");
+		}  finally {
+			ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_STOCK_ITEM_BY_ID,
+					MonitoringMetadata.RESOURCE_CPU);
+			ThreadMonitoringController.getInstance().exitService(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM_BY_ID);
 		}
 	}
 
