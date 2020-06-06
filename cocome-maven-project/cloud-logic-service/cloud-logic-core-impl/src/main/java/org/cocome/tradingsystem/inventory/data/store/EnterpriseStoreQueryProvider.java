@@ -75,8 +75,6 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	public IStore queryStoreById(long storeId) throws NotInDatabaseException {
 		ThreadMonitoringController.getInstance().enterService(CocomeMonitoringMetadata.SERVICE_QUERY_STORE_BY_ID, this);
 		long start = ThreadMonitoringController.getInstance().getTime();
-		ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_STORE_BY_ID,
-				MonitoringMetadata.RESOURCE_CPU);
 		try {
 			// @START INTERNAL_ACTION{_zJrNENLxEduQ7qbNANXHPw}
 			IStore store = csvHelper.getStores(
@@ -88,7 +86,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 					"Store with ID " + storeId + " could not be found!");
 		}  finally {
 			ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_STORE_BY_ID,
-					MonitoringMetadata.RESOURCE_CPU);
+					MonitoringMetadata.RESOURCE_CPU, start);
 			ThreadMonitoringController.getInstance().exitService(CocomeMonitoringMetadata.SERVICE_QUERY_STORE_BY_ID);
 		}
 	}
@@ -98,8 +96,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	@ManualMapping("queryStockItemById")
 	public IStockItem queryStockItemById(long stockItemId) throws NotInDatabaseException {
 		ThreadMonitoringController.getInstance().enterService(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM_BY_ID, this);
-		ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_STOCK_ITEM_BY_ID,
-				MonitoringMetadata.RESOURCE_CPU);
+		long startTime = ThreadMonitoringController.getInstance().getTime();
 		
 		try {
 			IStockItem item = csvHelper.getStockItems(
@@ -110,7 +107,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 					+ stockItemId + " could not be found!");
 		}  finally {
 			ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_STOCK_ITEM_BY_ID,
-					MonitoringMetadata.RESOURCE_CPU);
+					MonitoringMetadata.RESOURCE_CPU, startTime);
 			ThreadMonitoringController.getInstance().exitService(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM_BY_ID);
 		}
 	}
@@ -185,15 +182,14 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 	public Collection<IStockItem> queryLowStockItems(long storeId) {
 		ServiceParameters paras = new ServiceParameters();
 		ThreadMonitoringController.getInstance().enterService(CocomeMonitoringMetadata.SERVICE_QUERY_LOW_STOCK_ITEMS, this, paras);
-		ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_LOW_STOCK_ITEMS,
-				MonitoringMetadata.RESOURCE_CPU);
+		long startTime = ThreadMonitoringController.getInstance().getTime();
 		// Hacky way to get the result. We have to use e.minStock as comparison because
 		// using StockItem.minStock will not be parsed and the query will return an error
 		Collection<IStockItem> stockItems = csvHelper.getStockItems(
 				backendConnection.getStockItems("store.id==" + storeId + ";StockItem.amount=<e.minStock"));
 		
 		ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_LOW_STOCK_ITEMS,
-				MonitoringMetadata.RESOURCE_CPU);
+				MonitoringMetadata.RESOURCE_CPU, startTime);
 		ThreadMonitoringController.getInstance().exitService(CocomeMonitoringMetadata.SERVICE_QUERY_LOW_STOCK_ITEMS);
 		
 		return stockItems;
@@ -206,8 +202,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 		ThreadMonitoringController.getInstance().enterService(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM, this, paras);
 		// @START INTERNAL_ACTION{_2GlXMNL-EdujoZKiiOMQBA}
 		
-		ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_STOCK_ITEM,
-				MonitoringMetadata.RESOURCE_CPU);
+		long startTime = ThreadMonitoringController.getInstance().getTime();
 		IStockItem item = null;
 		try {
 			item = csvHelper.getStockItems(
@@ -219,7 +214,7 @@ public class EnterpriseStoreQueryProvider implements IStoreQuery {
 		// @END INTERNAL_ACTION{_2GlXMNL-EdujoZKiiOMQBA}
 		
 		ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.INTERNAL_QUERY_STOCK_ITEM,
-				MonitoringMetadata.RESOURCE_CPU);
+				MonitoringMetadata.RESOURCE_CPU, startTime);
 		ThreadMonitoringController.getInstance().exitService(CocomeMonitoringMetadata.SERVICE_QUERY_STOCK_ITEM);
 		
 		return item;

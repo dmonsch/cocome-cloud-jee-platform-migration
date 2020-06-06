@@ -6,9 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
@@ -59,7 +57,6 @@ public class ThreadMonitoringController {
 	private ThreadLocal<String> currentExternalCallId;
 	private ThreadLocal<Stack<ServiceCallTrack>> serviceCallStack;
 	private ThreadLocal<InternalOptional<Pair<String, String>>> remoteStack;
-	private ThreadLocal<Map<Pair<String, String>, Long>> startingTimesMap;
 	private ThreadLocal<String> currentSessionId;
 
 	private Set<String> monitoredIds = new HashSet<>();
@@ -89,12 +86,6 @@ public class ThreadMonitoringController {
 			@Override
 			public InternalOptional<Pair<String, String>> get() {
 				return new InternalOptional<Pair<String, String>>();
-			}
-		});
-		this.startingTimesMap = ThreadLocal.withInitial(new Supplier<Map<Pair<String, String>, Long>>() {
-			@Override
-			public Map<Pair<String, String>, Long> get() {
-				return new HashMap<Pair<String, String>, Long>();
 			}
 		});
 		this.currentExternalCallId = ThreadLocal.withInitial(new Supplier<String>() {
@@ -198,6 +189,10 @@ public class ThreadMonitoringController {
 
 	public void setExternalCallId(String callId) {
 		this.currentExternalCallId.set(callId);
+	}
+
+	public String getCurrentTraceId() {
+		return this.serviceCallStack.get().peek().serviceExecutionId;
 	}
 
 	/**
@@ -356,57 +351,21 @@ public class ThreadMonitoringController {
 		}
 	}
 
-	/**
-	 * Writes a response time monitoring record. The stop time of the response time
-	 * is taken by this method's internals.
-	 *
-	 * @param internalActionId The abstract action id of the internal action.
-	 * @param resourceId       The id of the resource type.
-	 * @param startTime        The start time of the response time.
-	 */
-	public void enterInternalAction(final String internalActionId, final String resourceId) {
-		if ((!monitoredIdsInited || monitoredIds.contains(internalActionId))
-				&& scaleController.shouldLog(internalActionId)) {
+	public void exitInternalAction(final String internalActionId, final String resourceId, final long startTime) {
+		if (!monitoredIdsInited || monitoredIds.contains(internalActionId)) {
 			long start = analysis.enterOverhead();
-			Map<Pair<String, String>, Long> threadMap = startingTimesMap.get();
-			threadMap.put(Pair.of(internalActionId, resourceId), TIME_SOURCE.getTime());
-
+			long end = TIME_SOURCE.getTime();
 			Stack<ServiceCallTrack> trace = serviceCallStack.get();
 
 			if (trace.empty()) {
 				throw new RuntimeException("The trace stack should never be empty when 'logResponseTime' is called.");
 			}
+
 			ServiceCallTrack currentTrack = trace.peek();
-			analysis.internalOverhead(internalActionId, start);
+			ResponseTimeRecord record = new ResponseTimeRecord(currentTrack.sessionId, currentTrack.serviceExecutionId,
+					internalActionId, resourceId, startTime, end);
+			MONITORING_CONTROLLER.newMonitoringRecord(record);
 			currentTrack.cumulatedMonitoringOverhead += (System.nanoTime() - start);
-		}
-	}
-
-	public void exitInternalAction(final String internalActionId, final String resourceId) {
-		if (!monitoredIdsInited || monitoredIds.contains(internalActionId)) {
-			long start = analysis.enterOverhead();
-
-			Map<Pair<String, String>, Long> threadMap = startingTimesMap.get();
-			Pair<String, String> query = Pair.of(internalActionId, resourceId);
-
-			if (threadMap.containsKey(query)) {
-				long startTime = threadMap.get(query);
-
-				long end = TIME_SOURCE.getTime();
-				Stack<ServiceCallTrack> trace = serviceCallStack.get();
-
-				if (trace.empty()) {
-					throw new RuntimeException(
-							"The trace stack should never be empty when 'logResponseTime' is called.");
-				}
-
-				ServiceCallTrack currentTrack = trace.peek();
-				ResponseTimeRecord record = new ResponseTimeRecord(currentTrack.sessionId,
-						currentTrack.serviceExecutionId, internalActionId, resourceId, startTime, end);
-				MONITORING_CONTROLLER.newMonitoringRecord(record);
-				threadMap.remove(query);
-				currentTrack.cumulatedMonitoringOverhead += (System.nanoTime() - start);
-			}
 
 			analysis.internalOverhead(internalActionId, start);
 		}

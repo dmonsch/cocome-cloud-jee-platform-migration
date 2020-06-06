@@ -33,6 +33,8 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import javax.naming.ldap.StartTlsRequest;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.cocome.tradingsystem.inventory.data.enterprise.IEnterpriseDataFactory;
@@ -409,12 +411,11 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 				ThreadMonitoringController.setSessionId(sessionId);
 				ThreadMonitoringController.getInstance().enterService("bookSale", this, serviceParameters);
 			}
-			
-			ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.PERFORM_TRANSACTION,
-					CocomeMonitoringMetadata.RESOURCE_CPU);
-			
+
+			long start = ThreadMonitoringController.getInstance().getTime();
+
 			// real call
-			__bookSale(storeID, sale);
+			__bookSale(storeID, sale, start);
 
 		} finally {
 			synchronized (ThreadMonitoringController.getInstance()) {
@@ -427,11 +428,11 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private void __bookSale(long storeID, final SaleTO saleTO)
+	private void __bookSale(long storeID, final SaleTO saleTO, final long start)
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
 		ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.PERFORM_TRANSACTION,
-				CocomeMonitoringMetadata.RESOURCE_CPU);
-		
+				CocomeMonitoringMetadata.RESOURCE_CPU, start);
+
 		// @START INTERNAL_ACTION{_m1YuANJOEduQ7qbNANXHPw}
 		System.out.println("Start transaction.");
 		// @END INTERNAL_ACTION{_m1YuANJOEduQ7qbNANXHPw}
@@ -443,11 +444,11 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		long iterations = 0;
 		for (final ProductWithStockItemTO pwsto : saleTO.getProductTOs()) {
 			// @CALL EXTERNAL_CALL{_3isY0NJOEduQ7qbNANXHPw}
-			ThreadMonitoringController.getInstance().setExternalCallId(CocomeMonitoringMetadata.EXTERNAL_QUERYSTOCKITEMBYID);
+			ThreadMonitoringController.getInstance()
+					.setExternalCallId(CocomeMonitoringMetadata.EXTERNAL_QUERYSTOCKITEMBYID);
 			final IStockItem si = __storeQuery.queryStockItemById(pwsto.getStockItemTO().getId());
-			
-			ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.UPDATE_ENTITY,
-					CocomeMonitoringMetadata.RESOURCE_CPU);
+
+			long startTime = ThreadMonitoringController.getInstance().getTime();
 			// @START INTERNAL_ACTION{_sWjMnP1LEeicRPoFxRMR1Q}
 			long amount = si.getAmount();
 
@@ -460,8 +461,8 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			pctx.updateEntity(si);
 			// @END INTERNAL_ACTION{_sWjMnP1LEeicRPoFxRMR1Q}
 			ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.UPDATE_ENTITY,
-					CocomeMonitoringMetadata.RESOURCE_CPU);
-			
+					CocomeMonitoringMetadata.RESOURCE_CPU, startTime);
+
 			iterations++;
 		}
 		ThreadMonitoringController.getInstance().exitLoop(CocomeMonitoringMetadata.PRODUCT_LOOP, iterations);
@@ -470,16 +471,16 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// Alternative (and probably better) design would be to check
 		// once in a while from separate thread, not on every sale.
 		//
+		long startTime = ThreadMonitoringController.getInstance().getTime();
 		try {
 			__checkForLowRunningGoods(storeID);
-			ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.TRY_BLOCK,
-					CocomeMonitoringMetadata.RESOURCE_CPU);
+			startTime = ThreadMonitoringController.getInstance().getTime();
 
 		} catch (final Exception e) {
 			__warn("Failed UC8! Could not transport low-stock items from other stores: %s", e.getMessage());
 		} finally {
 			ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.TRY_BLOCK,
-					CocomeMonitoringMetadata.RESOURCE_CPU);
+					CocomeMonitoringMetadata.RESOURCE_CPU, startTime);
 		}
 	}
 
@@ -618,8 +619,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// ENTER @LOOP{_XoxOlP1OEeicRPoFxRMR1Q}
 		long its = 0;
 		SCAN: for (final IStockItem stockItem : stockItems) {
-			ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.CALC_ORDER,
-					CocomeMonitoringMetadata.RESOURCE_CPU);
+			long startTime = ThreadMonitoringController.getInstance().getTime();
 			// START INTERNAL_ACTION{_25wIzv1PEeicRPoFxRMR1Q}
 			final IProduct product = stockItem.getProduct();
 			__debug("\t%s, barcode %d, amount %d, incoming %d, min stock %d", product.getName(), product.getBarcode(),
@@ -634,7 +634,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			result.add(stockItem);
 			// END INTERNAL_ACTION{_25wIzv1PEeicRPoFxRMR1Q}
 			ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.CALC_ORDER,
-					CocomeMonitoringMetadata.RESOURCE_CPU);
+					CocomeMonitoringMetadata.RESOURCE_CPU, startTime);
 			its++;
 		}
 		ThreadMonitoringController.getInstance().exitLoop(CocomeMonitoringMetadata.ORDER_LOOP, its);
@@ -665,8 +665,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// @ENTER LOOP{_CrPMVBA0EembpMH3VukgUA}
 		long its = 0;
 		for (final IStockItem stockItem : stockItems) {
-			ThreadMonitoringController.getInstance().enterInternalAction(CocomeMonitoringMetadata.CALCULATE_AMOUNTS,
-					CocomeMonitoringMetadata.RESOURCE_CPU);
+			long startTime = ThreadMonitoringController.getInstance().getTime();
 			// @START INTERNAL_ACTION{_CrPMVBA0EembpMH3VukgUA}
 			long orderAmount = stockItem.getMinStock();
 			if (2 * stockItem.getMinStock() >= stockItem.getMaxStock()) {
@@ -680,10 +679,11 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			result.add(pa);
 			// @END INTERNAL_ACTION{_CrPMVBA0EembpMH3VukgUA}
 			ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.CALCULATE_AMOUNTS,
-					CocomeMonitoringMetadata.RESOURCE_CPU);
-			
+					CocomeMonitoringMetadata.RESOURCE_CPU, startTime);
+
 			its++;
 		}
+		ThreadMonitoringController.getInstance().exitLoop(CocomeMonitoringMetadata.CALC_PROD_AMOUNT_LOOP, its);
 
 		__debug("%d products to be ordered by store %d", result.size(), storeID);
 		return result;
