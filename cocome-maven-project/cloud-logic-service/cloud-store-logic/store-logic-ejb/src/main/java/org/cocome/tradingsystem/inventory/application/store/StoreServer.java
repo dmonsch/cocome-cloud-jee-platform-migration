@@ -406,7 +406,6 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 
 		// session id
 		String sessionId = UUID.randomUUID().toString();
-		long start = ThreadMonitoringController.getInstance().getTime();
 		try {
 			synchronized (ThreadMonitoringController.getInstance()) {
 				ThreadMonitoringController.setSessionId(sessionId);
@@ -414,12 +413,11 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			}
 
 			// real call
-			start = __bookSale(storeID, sale);
+			long start = ThreadMonitoringController.getInstance().getTime();
+			__bookSale(storeID, sale, start);
 
 		} finally {
 			synchronized (ThreadMonitoringController.getInstance()) {
-				ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.PERFORM_TRANSACTION,
-						CocomeMonitoringMetadata.RESOURCE_CPU, start);
 				// monitoring end
 				ThreadMonitoringController.getInstance().exitService("bookSale");
 				// write overhead to file?
@@ -429,11 +427,14 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private long __bookSale(long storeID, final SaleTO saleTO)
+	private void __bookSale(long storeID, final SaleTO saleTO, long start)
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
 		// @START INTERNAL_ACTION{_m1YuANJOEduQ7qbNANXHPw}
 		System.out.println("Start transaction.");
 		// @END INTERNAL_ACTION{_m1YuANJOEduQ7qbNANXHPw}
+		
+		ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.PERFORM_TRANSACTION,
+				CocomeMonitoringMetadata.RESOURCE_CPU, start);
 
 		// @CALL EXTERNAL_CALL{_qPZWwNJOEduQ7qbNANXHPw}
 		// pctx.getPersistenceContext();
@@ -481,8 +482,6 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.TRY_BLOCK,
 					CocomeMonitoringMetadata.RESOURCE_CPU, startTime);
 		}
-		
-		return ThreadMonitoringController.getInstance().getTime();
 	}
 
 	/**
