@@ -438,7 +438,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// @END INTERNAL_ACTION{_m1YuANJOEduQ7qbNANXHPw}
 
 		// @CALL EXTERNAL_CALL{_qPZWwNJOEduQ7qbNANXHPw}
-		pctx.getPersistenceContext();
+		// pctx.getPersistenceContext();
 
 		// @ENTER LOOP{_wAfysNJOEduQ7qbNANXHPw}
 		long iterations = 0;

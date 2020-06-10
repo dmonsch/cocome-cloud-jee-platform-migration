@@ -37,7 +37,6 @@ public class CloudPersistenceContext implements IPersistenceContext {
 	IPersistenceConnection postData;
 	
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@ManualMapping("_6ZfDVB8PEdyY_su_CT9KsQ")
 	public void getPersistenceContext() {
 		// this is just to synchronize the implementation with the existing PCM model
