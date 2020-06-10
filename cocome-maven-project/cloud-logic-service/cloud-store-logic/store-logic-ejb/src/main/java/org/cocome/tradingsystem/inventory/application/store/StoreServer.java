@@ -406,19 +406,20 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 
 		// session id
 		String sessionId = UUID.randomUUID().toString();
+		long start = ThreadMonitoringController.getInstance().getTime();
 		try {
 			synchronized (ThreadMonitoringController.getInstance()) {
 				ThreadMonitoringController.setSessionId(sessionId);
 				ThreadMonitoringController.getInstance().enterService("bookSale", this, serviceParameters);
 			}
 
-			long start = ThreadMonitoringController.getInstance().getTime();
-
 			// real call
-			__bookSale(storeID, sale, start);
+			start = __bookSale(storeID, sale);
 
 		} finally {
 			synchronized (ThreadMonitoringController.getInstance()) {
+				ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.PERFORM_TRANSACTION,
+						CocomeMonitoringMetadata.RESOURCE_CPU, start);
 				// monitoring end
 				ThreadMonitoringController.getInstance().exitService("bookSale");
 				// write overhead to file?
@@ -428,11 +429,8 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private void __bookSale(long storeID, final SaleTO saleTO, final long start)
+	private long __bookSale(long storeID, final SaleTO saleTO)
 			throws ProductOutOfStockException, NotInDatabaseException, UpdateException {
-		ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.PERFORM_TRANSACTION,
-				CocomeMonitoringMetadata.RESOURCE_CPU, start);
-
 		// @START INTERNAL_ACTION{_m1YuANJOEduQ7qbNANXHPw}
 		System.out.println("Start transaction.");
 		// @END INTERNAL_ACTION{_m1YuANJOEduQ7qbNANXHPw}
@@ -453,6 +451,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			long amount = si.getAmount();
 
 			if (amount == 0) {
+				ThreadMonitoringController.getInstance().exitLoop(CocomeMonitoringMetadata.PRODUCT_LOOP, iterations);
 				// Normally this should not happen...
 				throw new ProductOutOfStockException("The requested product is not in stock anymore!");
 			}
@@ -482,6 +481,8 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 			ThreadMonitoringController.getInstance().exitInternalAction(CocomeMonitoringMetadata.TRY_BLOCK,
 					CocomeMonitoringMetadata.RESOURCE_CPU, startTime);
 		}
+		
+		return ThreadMonitoringController.getInstance().getTime();
 	}
 
 	/**
@@ -586,6 +587,7 @@ public class StoreServer implements Serializable, IStoreInventoryManagerLocal, I
 		// Query the store inventory for apparently low stock items,
 		// without consider items coming from other stores.
 		//
+		ThreadMonitoringController.getInstance().setExternalCallId(CocomeMonitoringMetadata.EXTERNAL_QUERY_LOW_STOCK_ITEMS);
 		final Collection<IStockItem> lowStockItems = __storeQuery.queryLowStockItems(storeID);
 		if (lowStockItems.size() < 1) {
 			return Collections.emptyList();
