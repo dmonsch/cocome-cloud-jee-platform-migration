@@ -279,7 +279,7 @@ public class ThreadMonitoringController {
 			}
 
 			// clear current external call
-			currentExternalCallId.remove();
+			currentExternalCallId.set(ServiceCallRecord.EXTERNAL_CALL_ID);
 
 			analysis.exitServiceCallOverhead(serviceId, start);
 		}
