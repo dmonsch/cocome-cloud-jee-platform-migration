@@ -2,7 +2,7 @@ package dmodel.designtime.monitoring.controller.config;
 
 public interface MonitoringConfiguration {
 
-	String SERVER_HOSTNAME = "host.docker.internal";
+	String SERVER_HOSTNAME = "192.168.178.44";
 	int SERVER_REST_PORT = 8090;
 	String SERVER_REST_INM_URL = "/runtime/pipeline/imm";
 
