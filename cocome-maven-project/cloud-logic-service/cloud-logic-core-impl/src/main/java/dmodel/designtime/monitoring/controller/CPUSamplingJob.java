@@ -33,7 +33,7 @@ public class CPUSamplingJob implements ISampler {
 		double cpuPerc = sigar.getCpuPerc().getCombined();
 
 		ResourceUtilizationRecord util = new ResourceUtilizationRecord(hostId, hostName,
-				MonitoringMetadata.RESOURCE_CPU, cpuPerc, TIME_SOURCE.getTime());
+				MonitoringMetadata.RESOURCE_CPU, Math.max(cpuPerc, 1.0f), TIME_SOURCE.getTime());
 		arg0.newMonitoringRecord(util);
 	}
 
