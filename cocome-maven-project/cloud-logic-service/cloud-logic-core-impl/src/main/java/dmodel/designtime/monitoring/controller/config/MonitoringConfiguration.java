@@ -3,7 +3,7 @@ package dmodel.designtime.monitoring.controller.config;
 public interface MonitoringConfiguration {
 
 	String SERVER_HOSTNAME = "dmodel";
-	int SERVER_REST_PORT = 8090;
+	int SERVER_REST_PORT = 8080;
 	String SERVER_REST_INM_URL = "/runtime/pipeline/imm";
 
 	boolean LOGARITHMIC_SCALING = false;
