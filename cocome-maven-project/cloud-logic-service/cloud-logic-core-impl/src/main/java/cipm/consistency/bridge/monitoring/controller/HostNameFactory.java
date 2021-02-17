@@ -1,4 +1,4 @@
-package dmodel.designtime.monitoring.controller;
+package cipm.consistency.bridge.monitoring.controller;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;

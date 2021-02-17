@@ -1,16 +1,15 @@
-package dmodel.designtime.monitoring.records;
+package cipm.consistency.bridge.monitoring.records;
 
 import java.nio.BufferOverflowException;
 
+import cipm.consistency.bridge.monitoring.records.HostContextRecord;
+import cipm.consistency.bridge.monitoring.records.ServiceContextRecord;
 import kieker.common.exception.RecordInstantiationException;
 import kieker.common.record.AbstractMonitoringRecord;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.io.IValueDeserializer;
 import kieker.common.record.io.IValueSerializer;
 import kieker.common.util.registry.IRegistry;
-
-import dmodel.designtime.monitoring.records.ServiceContextRecord;
-import dmodel.designtime.monitoring.records.HostContextRecord;
 
 /**
  * @author Generic Kieker

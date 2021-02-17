@@ -1,4 +1,4 @@
-package dmodel.designtime.monitoring.meta;
+package cipm.consistency.bridge.monitoring.meta;
 public class CocomeMonitoringMetadata {
 
 	// RESOURCES

@@ -1,4 +1,4 @@
-package dmodel.designtime.monitoring.records;
+package cipm.consistency.bridge.monitoring.records;
 
 import kieker.common.record.IMonitoringRecord;
 

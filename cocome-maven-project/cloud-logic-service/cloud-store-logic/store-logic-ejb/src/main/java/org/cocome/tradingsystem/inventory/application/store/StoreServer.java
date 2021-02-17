@@ -57,9 +57,9 @@ import org.cocome.tradingsystem.util.qualifier.StoreRequired;
 import org.cocome.tradingsystem.util.scope.IContextRegistry;
 import org.cocome.tradingsystem.util.scope.RegistryKeys;
 
-import dmodel.designtime.monitoring.controller.ServiceParameters;
-import dmodel.designtime.monitoring.controller.ThreadMonitoringController;
-import dmodel.designtime.monitoring.meta.CocomeMonitoringMetadata;
+import cipm.consistency.bridge.monitoring.controller.ServiceParameters;
+import cipm.consistency.bridge.monitoring.controller.ThreadMonitoringController;
+import cipm.consistency.bridge.monitoring.meta.CocomeMonitoringMetadata;
 import dmodel.designtime.monitoring.util.ManualMapping;
 
 /**

@@ -1,4 +1,4 @@
-package dmodel.designtime.monitoring.controller;
+package cipm.consistency.bridge.monitoring.controller;
 
 /**
  * Service parameter serialization.

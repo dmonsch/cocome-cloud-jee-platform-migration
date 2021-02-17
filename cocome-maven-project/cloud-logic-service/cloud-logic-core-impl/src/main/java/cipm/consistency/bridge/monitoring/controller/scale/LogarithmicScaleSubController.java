@@ -1,4 +1,4 @@
-package dmodel.designtime.monitoring.controller.scale;
+package cipm.consistency.bridge.monitoring.controller.scale;
 
 public class LogarithmicScaleSubController implements IScaleController {
 	private static final double NANO_TO_S = 1000000000;

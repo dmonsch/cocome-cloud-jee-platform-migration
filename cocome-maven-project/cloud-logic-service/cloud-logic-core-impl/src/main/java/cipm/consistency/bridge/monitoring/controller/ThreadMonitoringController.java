@@ -1,4 +1,4 @@
-package dmodel.designtime.monitoring.controller;
+package cipm.consistency.bridge.monitoring.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,14 +20,14 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import dmodel.designtime.monitoring.controller.config.MonitoringConfiguration;
-import dmodel.designtime.monitoring.controller.scale.IScaleController;
-import dmodel.designtime.monitoring.controller.scale.LogarithmicScaleController;
-import dmodel.designtime.monitoring.controller.scale.NoDecelerationScaleController;
-import dmodel.designtime.monitoring.records.BranchRecord;
-import dmodel.designtime.monitoring.records.LoopRecord;
-import dmodel.designtime.monitoring.records.ResponseTimeRecord;
-import dmodel.designtime.monitoring.records.ServiceCallRecord;
+import cipm.consistency.bridge.monitoring.controller.config.MonitoringConfiguration;
+import cipm.consistency.bridge.monitoring.controller.scale.IScaleController;
+import cipm.consistency.bridge.monitoring.controller.scale.LogarithmicScaleController;
+import cipm.consistency.bridge.monitoring.controller.scale.NoDecelerationScaleController;
+import cipm.consistency.bridge.monitoring.records.BranchRecord;
+import cipm.consistency.bridge.monitoring.records.LoopRecord;
+import cipm.consistency.bridge.monitoring.records.ResponseTimeRecord;
+import cipm.consistency.bridge.monitoring.records.ServiceCallRecord;
 import kieker.common.configuration.Configuration;
 import kieker.monitoring.core.configuration.ConfigurationFactory;
 import kieker.monitoring.core.controller.IMonitoringController;

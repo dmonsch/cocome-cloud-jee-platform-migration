@@ -1,4 +1,4 @@
-package dmodel.designtime.monitoring.controller.scale;
+package cipm.consistency.bridge.monitoring.controller.scale;
 
 public interface IScaleController {
 

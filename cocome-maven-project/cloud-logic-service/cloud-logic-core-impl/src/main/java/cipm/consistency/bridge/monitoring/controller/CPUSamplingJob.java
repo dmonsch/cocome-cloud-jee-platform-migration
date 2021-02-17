@@ -1,8 +1,8 @@
-package dmodel.designtime.monitoring.controller;
+package cipm.consistency.bridge.monitoring.controller;
 
 import org.hyperic.sigar.Sigar;
 
-import dmodel.designtime.monitoring.records.ResourceUtilizationRecord;
+import cipm.consistency.bridge.monitoring.records.ResourceUtilizationRecord;
 import kieker.monitoring.core.controller.IMonitoringController;
 import kieker.monitoring.core.controller.MonitoringController;
 import kieker.monitoring.core.sampler.ISampler;

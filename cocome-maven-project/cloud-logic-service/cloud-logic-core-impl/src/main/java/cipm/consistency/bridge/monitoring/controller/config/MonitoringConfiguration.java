@@ -1,4 +1,4 @@
-package dmodel.designtime.monitoring.controller.config;
+package cipm.consistency.bridge.monitoring.controller.config;
 
 public interface MonitoringConfiguration {
 
